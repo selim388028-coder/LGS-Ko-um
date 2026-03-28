@@ -13,6 +13,7 @@ export default function AISolver() {
   const [error, setError] = useState<string | null>(null);
   const [isMicOn, setIsMicOn] = useState(true);
   const [inputMode, setInputMode] = useState<'screen' | 'camera'>('screen');
+  const [messages, setMessages] = useState<{ role: 'user' | 'model', text: string }[]>([]);
   
   const sessionRef = useRef<any>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -41,12 +42,14 @@ export default function AISolver() {
     }
     setIsActive(false);
     setIsConnecting(false);
+    setMessages([]);
   };
 
   const startSession = async (mode: 'screen' | 'camera') => {
     setIsConnecting(true);
     setError(null);
     setInputMode(mode);
+    setMessages([]);
     
     try {
       if (!window.isSecureContext) {
@@ -107,13 +110,26 @@ export default function AISolver() {
           onopen: () => {
             setIsActive(true);
             setIsConnecting(false);
-            startStreaming(session);
+            if (sessionRef.current) {
+              startStreaming(sessionRef.current);
+              sessionRef.current.sendRealtimeInput({
+                text: "Merhaba, ekranını görüyorum. Hangi soruda takıldın?"
+              });
+            }
           },
           onmessage: async (message) => {
-            if (message.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data) {
-              const base64Audio = message.serverContent.modelTurn.parts[0].inlineData.data;
-              playAudioChunk(base64Audio);
+            const parts = message.serverContent?.modelTurn?.parts;
+            if (!parts) return;
+            
+            for (const part of parts) {
+              if (part.inlineData?.data) {
+                playAudioChunk(part.inlineData.data);
+              }
+              if (part.text) {
+                setMessages(prev => [...prev, { role: 'model', text: part.text! }]);
+              }
             }
+            
             if (message.serverContent?.interrupted) {
               // Stop current playback if interrupted
               nextPlayTimeRef.current = audioContextRef.current?.currentTime || 0;
@@ -192,6 +208,11 @@ export default function AISolver() {
 
   const playAudioChunk = (base64Data: string) => {
     if (!audioContextRef.current) return;
+    console.log("Playing audio chunk...");
+
+    if (audioContextRef.current.state === 'suspended') {
+      audioContextRef.current.resume();
+    }
 
     const binary = atob(base64Data);
     const bytes = new Uint8Array(binary.length);
@@ -338,6 +359,17 @@ export default function AISolver() {
                     : '"Soruyu net görebiliyorum, haydi birlikte çözelim!"'}
                 </p>
               </div>
+
+              {/* Chat Messages */}
+              {messages.length > 0 && (
+                <div className="w-full max-w-lg mx-auto bg-slate-50 rounded-2xl p-4 h-48 overflow-y-auto text-left text-sm space-y-2">
+                  {messages.map((msg, idx) => (
+                    <div key={idx} className={cn("p-2 rounded-lg", msg.role === 'model' ? "bg-white border border-slate-200" : "bg-indigo-100 ml-auto w-fit")}>
+                      {msg.text}
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 px-4">
                 <button

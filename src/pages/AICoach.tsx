@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Bot, Send, User, Loader2, Sparkles } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Bot, Send, User, Loader2, Sparkles, Monitor, MicOff } from 'lucide-react';
+import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../context/AuthContext';
 import PremiumPaywall from '../components/PremiumPaywall';
@@ -15,8 +15,11 @@ export default function AICoach() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLive, setIsLive] = useState(false);
   const chatRef = useRef<any>(null);
+  const liveSessionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -57,6 +60,39 @@ Görevlerin:
     }
   }, [profile]);
 
+  const startLiveSession = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const session = await ai.live.connect({
+        model: "gemini-3.1-flash-live-preview",
+        callbacks: {
+          onopen: () => {
+            setIsLive(true);
+          },
+          onmessage: async (message: LiveServerMessage) => {
+            // Sesli yanıtları işleme mantığı
+          },
+        },
+        config: {
+          responseModalities: [Modality.AUDIO],
+          speechConfig: {
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: "Zephyr" } },
+          },
+          systemInstruction: "Sen bir LGS öğretmenisin. Öğrencinin paylaştığı ekranı görüyorsun ve soruyu sesli olarak çözüyorsun.",
+        },
+      });
+      liveSessionRef.current = session;
+    } catch (error) {
+      console.error("Live Session Error:", error);
+    }
+  }, []);
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading || !chatRef.current) return;
@@ -83,16 +119,24 @@ Görevlerin:
 
   return (
     <div className="max-w-4xl mx-auto h-[calc(100vh-8rem)] flex flex-col">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
-          <Bot className="w-7 h-7" />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
+            <Bot className="w-7 h-7" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+              AI Koçum <Sparkles className="w-5 h-5 text-amber-500" />
+            </h1>
+            <p className="text-slate-500">Konu çalış, soru sor, örneklerle öğren.</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            AI Koçum <Sparkles className="w-5 h-5 text-amber-500" />
-          </h1>
-          <p className="text-slate-500">Konu çalış, soru sor, örneklerle öğren.</p>
-        </div>
+        <button
+          onClick={startLiveSession}
+          className={`px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-colors ${isLive ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white hover:bg-emerald-700'}`}
+        >
+          {isLive ? <><MicOff className="w-4 h-4" /> Sohbeti Bitir</> : <><Monitor className="w-4 h-4" /> Ekranı Paylaş ve Sesli Sohbeti Başlat</>}
+        </button>
       </div>
 
       <div className="flex-1 bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
@@ -137,11 +181,11 @@ Görevlerin:
               onChange={e => setInput(e.target.value)}
               placeholder="Hangi konuyu çalışalım? Veya anlamadığın bir soruyu yaz..."
               className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
-              disabled={isLoading}
+              disabled={isLoading || isLive}
             />
             <button
               type="submit"
-              disabled={!input.trim() || isLoading}
+              disabled={!input.trim() || isLoading || isLive}
               className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
             >
               Gönder <Send className="w-4 h-4" />
@@ -149,6 +193,7 @@ Görevlerin:
           </form>
         </div>
       </div>
+      <video ref={videoRef} className="hidden" />
     </div>
   );
 }
