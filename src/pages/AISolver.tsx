@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI, Modality } from "@google/genai";
 import { motion } from 'motion/react';
-import { Monitor, Mic, MicOff, Play, Square, AlertCircle, Loader2, Bot, Camera } from 'lucide-react';
+import { Monitor, Mic, MicOff, Square, AlertCircle, Loader2, Bot, Camera } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useAuth } from '../context/AuthContext';
+import PremiumPaywall from '../components/PremiumPaywall';
 
 export default function AISolver() {
+  const { profile } = useAuth();
   const [isActive, setIsActive] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,6 +49,14 @@ export default function AISolver() {
     setInputMode(mode);
     
     try {
+      if (!window.isSecureContext) {
+        throw new Error("Bu özellik sadece güvenli bağlantı (HTTPS) üzerinden kullanılabilir.");
+      }
+
+      if (!navigator.mediaDevices) {
+        throw new Error("Tarayıcınız kamera veya ekran paylaşımını desteklemiyor.");
+      }
+
       // 1. Get Visual Stream
       let visualStream: MediaStream;
       if (mode === 'screen') {
@@ -211,6 +222,10 @@ export default function AISolver() {
     return () => stopSession();
   }, []);
 
+  if (!profile?.isPremium) {
+    return <PremiumPaywall featureName="Canlı Soru Çözümü" />;
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="text-center">
@@ -244,22 +259,22 @@ export default function AISolver() {
                 </div>
               )}
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button
-                  onClick={() => startSession('screen')}
-                  disabled={isConnecting}
-                  className={cn(
-                    "flex items-center justify-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold text-lg shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95",
-                    isConnecting && "opacity-70 cursor-not-allowed"
-                  )}
-                >
-                  {isConnecting && inputMode === 'screen' ? (
-                    <Loader2 className="w-6 h-6 animate-spin" />
-                  ) : (
-                    <Monitor className="w-6 h-6" />
-                  )}
-                  Ekran Paylaş
-                </button>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button
+                      onClick={() => startSession('screen')}
+                      disabled={isConnecting || !navigator.mediaDevices?.getDisplayMedia}
+                      className={cn(
+                        "flex items-center justify-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold text-lg shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95",
+                        (isConnecting || !navigator.mediaDevices?.getDisplayMedia) && "opacity-70 cursor-not-allowed"
+                      )}
+                    >
+                      {isConnecting && inputMode === 'screen' ? (
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                      ) : (
+                        <Monitor className="w-6 h-6" />
+                      )}
+                      {navigator.mediaDevices?.getDisplayMedia ? 'Ekran Paylaş' : 'Ekran Paylaşımı Desteklenmiyor'}
+                    </button>
 
                 <button
                   onClick={() => startSession('camera')}

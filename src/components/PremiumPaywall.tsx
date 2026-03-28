@@ -2,7 +2,6 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { Crown, CheckCircle2, Sparkles, Lock } from 'lucide-react';
-import { useAppContext } from '../context/AppContext';
 
 interface PremiumPaywallProps {
   featureName: string;
@@ -10,7 +9,6 @@ interface PremiumPaywallProps {
 
 export default function PremiumPaywall({ featureName }: PremiumPaywallProps) {
   const navigate = useNavigate();
-  const { upgradeToPremium } = useAppContext();
 
   const features = [
     "AI Koçum ile kişiselleştirilmiş rehberlik",
@@ -50,7 +48,7 @@ export default function PremiumPaywall({ featureName }: PremiumPaywallProps) {
             <div className="mt-4 flex items-end justify-center gap-1">
               <span className="text-4xl font-black text-slate-900">359</span>
               <span className="text-lg font-bold text-slate-500 mb-1">TL</span>
-              <span className="text-sm text-slate-400 mb-2">/yıllık</span>
+              <span className="text-sm text-slate-400 mb-2">/aylık</span>
             </div>
           </div>
 
@@ -72,7 +70,7 @@ export default function PremiumPaywall({ featureName }: PremiumPaywallProps) {
           </button>
           
           <p className="text-center text-xs text-slate-400 mt-4">
-            Tek seferlik ödeme. İstediğin zaman iptal edebilirsin.
+            Aylık yenilenen abonelik. İstediğin zaman iptal edebilirsin.
           </p>
         </div>
       </motion.div>

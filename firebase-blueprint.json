@@ -1,0 +1,28 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "User profile information and verification status",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique user ID" },
+        "email": { "type": "string", "format": "email", "description": "User email address" },
+        "displayName": { "type": "string", "description": "User display name" },
+        "targetHighSchool": { "type": "string", "description": "Target high school" },
+        "dailyGoal": { "type": "number", "description": "Daily question goal" },
+        "isPremium": { "type": "boolean", "description": "Premium status" },
+        "isEmailVerified": { "type": "boolean", "description": "Email verification status" },
+        "verificationCode": { "type": "string", "description": "6-digit verification code" },
+        "verificationCodeExpires": { "type": "string", "format": "date-time", "description": "Verification code expiration" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Profile creation timestamp" }
+      },
+      "required": ["uid", "email", "displayName", "isEmailVerified", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profiles"
+    }
+  }
+}

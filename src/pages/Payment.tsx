@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { CreditCard, Calendar, Lock, ShieldCheck, ArrowLeft, CheckCircle2, Loader2, Sparkles } from 'lucide-react';
-import { useAppContext } from '../context/AppContext';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../firebase';
+import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 
 export default function Payment() {
   const navigate = useNavigate();
-  const { upgradeToPremium } = useAppContext();
+  const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     cardNumber: '',
     expiry: '',
@@ -19,23 +22,100 @@ export default function Payment() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    setError(null);
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateCard = () => {
+    const cardNo = formData.cardNumber.replace(/\s/g, '');
+    
+    // Luhn Algorithm for card number validation
+    const isLuhnValid = (num: string) => {
+      let sum = 0;
+      for (let i = 0; i < num.length; i++) {
+        let digit = parseInt(num[num.length - 1 - i]);
+        if (i % 2 === 1) {
+          digit *= 2;
+          if (digit > 9) digit -= 9;
+        }
+        sum += digit;
+      }
+      return sum % 10 === 0;
+    };
+
+    if (cardNo.length < 13 || cardNo.length > 19 || !/^\d+$/.test(cardNo)) {
+      return "Geçersiz kart numarası formatı.";
+    }
+
+    if (!isLuhnValid(cardNo)) {
+      return "Geçersiz kart numarası. Lütfen kontrol ediniz.";
+    }
+    
+    if (!/^\d{2}\/\d{2}$/.test(formData.expiry)) {
+      return "Geçersiz son kullanma tarihi. AA/YY formatında olmalıdır.";
+    }
+    
+    const [month, year] = formData.expiry.split('/').map(n => parseInt(n));
+    const now = new Date();
+    const currentYear = now.getFullYear() % 100;
+    const currentMonth = now.getMonth() + 1;
+
+    if (month < 1 || month > 12) {
+      return "Geçersiz ay.";
+    }
+
+    if (year < currentYear || (year === currentYear && month < currentMonth)) {
+      return "Kartın süresi dolmuş.";
+    }
+    
+    if (formData.cvv.length !== 3 || !/^\d+$/.test(formData.cvv)) {
+      return "Geçersiz CVV. 3 haneli olmalıdır.";
+    }
+
+    if (formData.name.trim().length < 5) {
+      return "Lütfen kart üzerindeki ismi tam giriniz.";
+    }
+
+    return null;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const validationError = validateCard();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    if (!user) {
+      setError("Lütfen önce giriş yapın.");
+      return;
+    }
+
     setIsProcessing(true);
+    setError(null);
 
     // Simulate payment processing
-    setTimeout(() => {
-      setIsProcessing(false);
-      setIsSuccess(true);
-      
-      // Upgrade to premium after a short delay to show success state
-      setTimeout(() => {
-        upgradeToPremium();
-        navigate('/');
-      }, 2000);
+    setTimeout(async () => {
+      try {
+        // Update premium status in Firestore
+        await updateDoc(doc(db, 'users', user.uid), {
+          isPremium: true
+        });
+        
+        setIsProcessing(false);
+        setIsSuccess(true);
+        
+        // Redirect after a short delay
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
+      } catch (err: any) {
+        console.error(err);
+        setError("Ödeme onaylandı ancak üyelik güncellenirken bir hata oluştu. Lütfen destekle iletişime geçin.");
+        setIsProcessing(false);
+      }
     }, 2500);
   };
 
@@ -73,10 +153,17 @@ export default function Payment() {
                 <div className="bg-indigo-50 rounded-2xl p-4 mb-8 flex items-center justify-between">
                   <div>
                     <p className="text-sm text-indigo-600 font-medium">Kazananlar Planı</p>
-                    <p className="text-xs text-indigo-400">Yıllık Abonelik</p>
+                    <p className="text-xs text-indigo-400">Aylık Abonelik</p>
                   </div>
                   <p className="text-xl font-black text-indigo-700">359 TL</p>
                 </div>
+
+                {error && (
+                  <div className="mb-6 p-4 bg-rose-50 text-rose-600 rounded-xl text-sm flex items-center gap-2 border border-rose-100 animate-shake">
+                    <ArrowLeft className="w-4 h-4 rotate-180" />
+                    {error}
+                  </div>
+                )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>

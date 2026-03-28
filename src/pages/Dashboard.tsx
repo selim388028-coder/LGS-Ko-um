@@ -1,13 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { useAppContext } from '../context/AppContext';
 import { Target, TrendingUp, BookOpen, AlertCircle, CheckCircle2, Bot, Sparkles, FileText } from 'lucide-react';
 import { motion } from 'motion/react';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { ResponsiveContainer, LineChart, Line, Tooltip } from 'recharts';
 import { cn } from '../lib/utils';
 
 export default function Dashboard() {
-  const { profile, mockExams, studyPlan, mistakes, toggleTaskCompleted } = useAppContext();
+  const { profile } = useAuth();
+  const { mockExams, studyPlan, mistakes, toggleTaskCompleted } = useAppContext();
   const navigate = useNavigate();
 
   const today = new Date().toISOString().split('T')[0];
@@ -27,7 +29,7 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-slate-900">Merhaba, {profile?.name}! 👋</h1>
+            <h1 className="text-2xl font-bold text-slate-900">Merhaba, {profile?.displayName}! 👋</h1>
             {profile?.isPremium && (
               <span className="px-2 py-0.5 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-black uppercase tracking-wider rounded-full flex items-center gap-1 shadow-sm">
                 <Sparkles className="w-2.5 h-2.5" />
@@ -47,6 +49,33 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Announcement Banner */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-lg shadow-indigo-200 relative overflow-hidden"
+      >
+        <div className="absolute top-0 right-0 p-4 opacity-10">
+          <Target className="w-32 h-32" />
+        </div>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 bg-white/20 backdrop-blur-sm rounded text-[10px] font-bold uppercase tracking-widest">Duyuru</span>
+              <div className="w-2 h-2 bg-rose-400 rounded-full animate-pulse" />
+            </div>
+            <h2 className="text-xl md:text-2xl font-black">Türkiye Geneli LGS 2026 Prova Denemesi</h2>
+            <p className="text-indigo-100 text-sm md:text-base max-w-xl">
+              4 Nisan'da tüm Türkiye ile aynı anda prova denemesine katıl, eksiklerini gör ve sıralamanı öğren!
+            </p>
+          </div>
+          <div className="flex flex-col items-center justify-center bg-white/10 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/20 min-w-[140px]">
+            <span className="text-3xl font-black">04</span>
+            <span className="text-xs font-bold uppercase tracking-widest opacity-80">Nisan 2026</span>
+          </div>
+        </div>
+      </motion.div>
 
       {/* Quick Access Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

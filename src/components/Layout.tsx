@@ -11,11 +11,13 @@ import {
   Bot,
   FileText,
   Menu,
-  X
+  X,
+  User,
+  Sparkles
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import Logo from './Logo';
-import { useAppContext } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 
 const navigation = [
   { name: 'Özet', href: '/', icon: LayoutDashboard },
@@ -29,11 +31,12 @@ const navigation = [
   { name: 'AI Koçum', href: '/ai-coach', icon: Bot },
   { name: 'Canlı Soru Çözümü', href: '/ai-solver', icon: Bot },
   { name: 'Motivasyon', href: '/motivation', icon: Flame },
+  { name: 'Profilim', href: '/profile', icon: User },
 ];
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { profile } = useAppContext();
+  const { profile } = useAuth();
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -75,7 +78,7 @@ export default function Layout() {
                 onClick={() => setSidebarOpen(false)}
                 className="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-bold text-sm shadow-lg shadow-amber-200"
               >
-                <Menu className="w-4 h-4" /> {/* Using Menu as placeholder for Crown if not imported */}
+                <Sparkles className="w-4 h-4" />
                 Premium'a Geç
               </NavLink>
             </div>
@@ -114,7 +117,7 @@ export default function Layout() {
               to="/payment"
               className="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-bold text-sm shadow-lg shadow-amber-100 hover:shadow-amber-200 transition-all hover:-translate-y-0.5"
             >
-              <X className="w-4 h-4 rotate-45" /> {/* Using X rotated as placeholder for Sparkles if not imported */}
+              <Sparkles className="w-4 h-4" />
               Premium'a Geç
             </NavLink>
           </div>

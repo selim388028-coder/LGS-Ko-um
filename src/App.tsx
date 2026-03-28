@@ -1,9 +1,9 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AppProvider, useAppContext } from './context/AppContext';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { AppProvider } from './context/AppContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
-import Onboarding from './pages/Onboarding';
 import StudyPlan from './pages/StudyPlan';
 import MockExams from './pages/MockExams';
 import Mistakes from './pages/Mistakes';
@@ -15,46 +15,73 @@ import AICoach from './pages/AICoach';
 import AISolver from './pages/AISolver';
 import SchoolExams from './pages/SchoolExams';
 import Payment from './pages/Payment';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Profile from './pages/Profile';
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { profile } = useAppContext();
-  if (!profile) {
-    return <Navigate to="/onboarding" replace />;
+function ProtectedRoute() {
+  const { user, profile, loading, isAuthReady } = useAuth();
+  
+  if (!isAuthReady || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
-  return <>{children}</>;
+  
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Outlet />;
 }
 
 function AppRoutes() {
-  const { profile } = useAppContext();
+  const { user, profile, isAuthReady } = useAuth();
+
+  if (!isAuthReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <Routes>
-      <Route path="/onboarding" element={!profile ? <Onboarding /> : <Navigate to="/" replace />} />
+      <Route path="/login" element={!user ? <Login /> : <Navigate to="/" replace />} />
+      <Route path="/register" element={!user ? <Register /> : <Navigate to="/" replace />} />
       
-      <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-        <Route index element={<Dashboard />} />
-        <Route path="plan" element={<StudyPlan />} />
-        <Route path="exams" element={<MockExams />} />
-        <Route path="mistakes" element={<Mistakes />} />
-        <Route path="timer" element={<Timer />} />
-        <Route path="motivation" element={<Motivation />} />
-        <Route path="lgs-2026" element={<LGS2026 />} />
-        <Route path="summaries" element={<MiniSummaries />} />
-        <Route path="ai-coach" element={<AICoach />} />
-        <Route path="ai-solver" element={<AISolver />} />
-        <Route path="school-exams" element={<SchoolExams />} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/plan" element={<StudyPlan />} />
+          <Route path="/exams" element={<MockExams />} />
+          <Route path="/mistakes" element={<Mistakes />} />
+          <Route path="/timer" element={<Timer />} />
+          <Route path="/motivation" element={<Motivation />} />
+          <Route path="/lgs-2026" element={<LGS2026 />} />
+          <Route path="/summaries" element={<MiniSummaries />} />
+          <Route path="/ai-coach" element={<AICoach />} />
+          <Route path="/ai-solver" element={<AISolver />} />
+          <Route path="/school-exams" element={<SchoolExams />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
+        <Route path="/payment" element={<Payment />} />
       </Route>
-      <Route path="/payment" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
     </Routes>
   );
 }
 
 export default function App() {
   return (
-    <AppProvider>
-      <Router>
-        <AppRoutes />
-      </Router>
-    </AppProvider>
+    <AuthProvider>
+      <AppProvider>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </AppProvider>
+    </AuthProvider>
   );
 }

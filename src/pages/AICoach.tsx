@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Bot, Send, User, Loader2, Sparkles } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
-import { useAppContext } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import PremiumPaywall from '../components/PremiumPaywall';
 
 interface Message {
@@ -11,7 +11,7 @@ interface Message {
 }
 
 export default function AICoach() {
-  const { profile } = useAppContext();
+  const { profile } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +29,7 @@ export default function AICoach() {
       const initChat = async () => {
         try {
           const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-          const systemInstruction = `Sen LGS'ye hazırlanan öğrencilere ders anlatan, konu öğreten ve örnekler çözen bir yapay zeka öğretmenisin (AI Koçum). Öğrencinin adı ${profile.name}, hedefi ${profile.targetHighSchool} (${profile.targetScore} puan). Zayıf olduğu dersler: ${profile.weakSubjects.join(', ')}.
+          const systemInstruction = `Sen LGS'ye hazırlanan öğrencilere ders anlatan, konu öğreten ve örnekler çözen bir yapay zeka öğretmenisin (AI Koçum). Öğrencinin adı ${profile.displayName}, hedefi ${profile.targetHighSchool}.
           
 Görevlerin:
 1. Öğrenci sana bir konu sorduğunda (örn: "Üslü sayılar nedir?"), konuyu onun seviyesine uygun, akılda kalıcı ve kısa bir şekilde anlat.
@@ -45,7 +45,7 @@ Görevlerin:
           setMessages([
             { 
               role: 'model', 
-              text: `Merhaba ${profile.name}! Ben senin kişisel AI Koçunum. Hedefin olan **${profile.targetHighSchool}** lisesine ulaşman için buradayım. Özellikle ${profile.weakSubjects.join(', ')} derslerinde sana yardımcı olabilirim.\n\nHangi konuyu çalışmak istersin veya hangi soruyu çözemedin? Bana yaz, hemen anlatayım ve örneklerle pekiştirelim!` 
+              text: `Merhaba ${profile.displayName}! Ben senin kişisel AI Koçunum. Hedefin olan **${profile.targetHighSchool}** lisesine ulaşman için buradayım.\n\nHangi konuyu çalışmak istersin veya hangi soruyu çözemedin? Bana yaz, hemen anlatayım ve örneklerle pekiştirelim!` 
             }
           ]);
         } catch (error) {
