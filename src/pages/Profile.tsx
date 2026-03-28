@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { motion } from 'motion/react';
-import { User, Target, Trophy, LogOut, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
+import { User, Target, Trophy, LogOut, CheckCircle2, Loader2, AlertCircle, Sparkles } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export default function Profile() {
@@ -53,6 +53,22 @@ export default function Profile() {
     }
   };
 
+  const handleTogglePremium = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: !profile.isPremium
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Premium durumu güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!profile) return null;
 
   return (
@@ -83,13 +99,28 @@ export default function Profile() {
             </div>
           </div>
         </div>
-        <button 
-          onClick={() => logout()}
-          className="flex items-center gap-2 px-6 py-3 bg-rose-50 text-rose-600 rounded-xl font-bold hover:bg-rose-100 transition-colors"
-        >
-          <LogOut className="w-5 h-5" />
-          Çıkış Yap
-        </button>
+        <div className="flex flex-col gap-3">
+          <button 
+            onClick={handleTogglePremium}
+            disabled={loading}
+            className={cn(
+              "flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all shadow-sm",
+              profile.isPremium 
+                ? "bg-slate-100 text-slate-600 hover:bg-slate-200" 
+                : "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-amber-100 hover:shadow-amber-200"
+            )}
+          >
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+            {profile.isPremium ? 'Premium İptal Et' : 'Premium Aktif Et'}
+          </button>
+          <button 
+            onClick={() => logout()}
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-rose-50 text-rose-600 rounded-xl font-bold hover:bg-rose-100 transition-colors"
+          >
+            <LogOut className="w-5 h-5" />
+            Çıkış Yap
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
