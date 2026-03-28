@@ -1,5 +1,5 @@
 {
   "name": "LGS Koçum",
   "description": "LGS'ye hazırlanan öğrenciler için kişiselleştirilmiş çalışma planı, deneme takibi, net hesaplama ve çıkmış soru analizleri sunan modern bir koçluk uygulaması.",
-  "requestFramePermissions": []
+  "requestFramePermissions": ["microphone", "camera", "display-capture"]
 }

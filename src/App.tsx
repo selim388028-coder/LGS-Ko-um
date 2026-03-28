@@ -12,6 +12,7 @@ import Motivation from './pages/Motivation';
 import LGS2026 from './pages/LGS2026';
 import MiniSummaries from './pages/MiniSummaries';
 import AICoach from './pages/AICoach';
+import AISolver from './pages/AISolver';
 import SchoolExams from './pages/SchoolExams';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -39,6 +40,7 @@ function AppRoutes() {
         <Route path="lgs-2026" element={<LGS2026 />} />
         <Route path="summaries" element={<MiniSummaries />} />
         <Route path="ai-coach" element={<AICoach />} />
+        <Route path="ai-solver" element={<AISolver />} />
         <Route path="school-exams" element={<SchoolExams />} />
       </Route>
     </Routes>

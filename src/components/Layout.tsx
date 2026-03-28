@@ -26,6 +26,7 @@ const navigation = [
   { name: 'Mini Özetler', href: '/summaries', icon: BookOpen },
   { name: 'Yazılı Hazırlık', href: '/school-exams', icon: FileText },
   { name: 'AI Koçum', href: '/ai-coach', icon: Bot },
+  { name: 'Canlı Soru Çözümü', href: '/ai-solver', icon: Bot },
   { name: 'Motivasyon', href: '/motivation', icon: Flame },
 ];
 
