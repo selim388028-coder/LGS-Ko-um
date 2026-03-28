@@ -69,6 +69,1689 @@ export default function Profile() {
     }
   };
 
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockAll = async () => {
+    if (!user || !profile) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        isPremium: true,
+        role: 'admin'
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      console.error(err);
+      setError('Yetkiler güncellenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!profile) return null;
 
   return (
