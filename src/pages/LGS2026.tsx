@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import { Target, ArrowRight, CheckCircle2, XCircle, AlertCircle, ChevronLeft, BookOpen, Calendar as CalendarIcon } from 'lucide-react';
+import { Target, ArrowRight, CheckCircle2, XCircle, AlertCircle, ChevronLeft, BookOpen, Calendar as CalendarIcon, Bot } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Subject } from '../types';
 import { LGS_2026_QUESTIONS } from '../data/lgs2026Questions';
@@ -142,6 +142,15 @@ export default function LGS2026() {
                         </span> 
                         {q.explanation}
                       </div>
+
+                      {!isCorrect && (
+                        <button 
+                          onClick={() => navigate('/ai-coach')}
+                          className="mt-4 w-full py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <Bot className="w-4 h-4" /> Bu Soruyu AI Koçuna Sor
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

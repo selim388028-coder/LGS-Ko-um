@@ -1,11 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import { Target, TrendingUp, BookOpen, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Target, TrendingUp, BookOpen, AlertCircle, CheckCircle2, Bot, Sparkles, FileText } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { cn } from '../lib/utils';
 
 export default function Dashboard() {
   const { profile, mockExams, studyPlan, mistakes, toggleTaskCompleted } = useAppContext();
+  const navigate = useNavigate();
 
   const today = new Date().toISOString().split('T')[0];
   const todaysTasks = studyPlan.filter(task => task.date === today);
@@ -37,12 +40,36 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Quick Access Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { name: 'AI Koçum', icon: Bot, href: '/ai-coach', color: 'bg-indigo-50 text-indigo-600', hover: 'hover:bg-indigo-100' },
+          { name: 'Canlı Çözüm', icon: Sparkles, href: '/ai-solver', color: 'bg-amber-50 text-amber-600', hover: 'hover:bg-amber-100' },
+          { name: 'Yazılı Hazırlık', icon: FileText, href: '/school-exams', color: 'bg-emerald-50 text-emerald-600', hover: 'hover:bg-emerald-100' },
+          { name: 'Mini Özetler', icon: BookOpen, href: '/summaries', color: 'bg-blue-50 text-blue-600', hover: 'hover:bg-blue-100' },
+        ].map((item) => (
+          <button
+            key={item.name}
+            onClick={() => navigate(item.href)}
+            className={cn(
+              "flex flex-col items-center justify-center p-4 rounded-2xl border border-transparent transition-all hover:shadow-md",
+              item.color,
+              item.hover
+            )}
+          >
+            <item.icon className="w-6 h-6 mb-2" />
+            <span className="text-xs font-bold uppercase tracking-wider">{item.name}</span>
+          </button>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Daily Progress */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100"
+          onClick={() => navigate('/plan')}
+          className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 cursor-pointer hover:border-indigo-300 transition-all hover:shadow-md group"
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-slate-800 flex items-center gap-2">
@@ -53,7 +80,7 @@ export default function Dashboard() {
           </div>
           <div className="relative pt-2">
             <div className="overflow-hidden h-2 mb-4 text-xs flex rounded-full bg-slate-100">
-              <div style={{ width: `${progress}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500 transition-all duration-500"></div>
+              <div style={{ width: `${progress}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500 transition-all duration-500 group-hover:bg-indigo-500"></div>
             </div>
             <p className="text-sm text-slate-600">
               {progress === 100 ? "Harika! Bugünün tüm görevlerini tamamladın." : "Bugün için planlanan görevlerini tamamlamaya devam et."}
@@ -66,7 +93,8 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100"
+          onClick={() => navigate('/exams')}
+          className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 cursor-pointer hover:border-emerald-300 transition-all hover:shadow-md group"
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-slate-800 flex items-center gap-2">
@@ -98,7 +126,8 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100"
+          onClick={() => navigate('/mistakes')}
+          className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 cursor-pointer hover:border-rose-300 transition-all hover:shadow-md group"
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-slate-800 flex items-center gap-2">
@@ -110,7 +139,13 @@ export default function Dashboard() {
           <p className="text-sm text-slate-600 mb-4">
             Yanlış yaptığın soruları tekrar çözmek, netlerini artırmanın en kesin yoludur.
           </p>
-          <button className="w-full py-2 bg-rose-50 text-rose-600 rounded-lg text-sm font-medium hover:bg-rose-100 transition-colors">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate('/mistakes');
+            }}
+            className="w-full py-2 bg-rose-50 text-rose-600 rounded-lg text-sm font-medium hover:bg-rose-100 transition-colors"
+          >
             Yanlış Defterine Git
           </button>
         </motion.div>

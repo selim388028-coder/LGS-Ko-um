@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { Subject, Mistake } from '../types';
-import { BookX, Plus, CheckCircle2, Circle, Calendar, Tag, Image as ImageIcon, X } from 'lucide-react';
+import { BookX, Plus, CheckCircle2, Circle, Calendar, Tag, Image as ImageIcon, X, Bot } from 'lucide-react';
 import PremiumPaywall from '../components/PremiumPaywall';
 
 const SUBJECTS: Subject[] = [
@@ -15,6 +16,7 @@ const SUBJECTS: Subject[] = [
 
 export default function Mistakes() {
   const { mistakes, addMistake, toggleMistakeResolved, profile } = useAppContext();
+  const navigate = useNavigate();
   const [isAdding, setIsAdding] = useState(false);
   
   const [newMistake, setNewMistake] = useState<Partial<Mistake>>({
@@ -218,13 +220,15 @@ export default function Mistakes() {
                         <Calendar className="w-3 h-3" /> {new Date(mistake.date).toLocaleDateString('tr-TR')}
                       </span>
                     </div>
-                    <button 
-                      onClick={() => toggleMistakeResolved(mistake.id)}
-                      className="text-slate-400 hover:text-emerald-500 transition-colors flex items-center gap-1 text-sm font-medium"
-                      title="Öğrendim olarak işaretle"
-                    >
-                      <Circle className="w-5 h-5" />
-                    </button>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => toggleMistakeResolved(mistake.id)}
+                        className="text-slate-400 hover:text-emerald-500 transition-colors flex items-center gap-1 text-sm font-medium"
+                        title="Öğrendim olarak işaretle"
+                      >
+                        <Circle className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
                   
                   <h3 className="font-semibold text-slate-800 mb-2 flex items-center gap-1.5">
@@ -237,9 +241,16 @@ export default function Mistakes() {
                     </div>
                   )}
                   
-                  <div className="bg-slate-50 p-3 rounded-lg text-sm text-slate-700 border border-slate-100">
+                  <div className="bg-slate-50 p-3 rounded-lg text-sm text-slate-700 border border-slate-100 mb-3">
                     {mistake.notes}
                   </div>
+
+                  <button 
+                    onClick={() => navigate('/ai-coach')}
+                    className="w-full py-2 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-bold hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Bot className="w-4 h-4" /> Bu Konuyu AI Koçuna Sor
+                  </button>
                 </div>
               ))}
             </div>
