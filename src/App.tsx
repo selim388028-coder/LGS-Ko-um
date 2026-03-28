@@ -14,6 +14,7 @@ import MiniSummaries from './pages/MiniSummaries';
 import AICoach from './pages/AICoach';
 import AISolver from './pages/AISolver';
 import SchoolExams from './pages/SchoolExams';
+import Payment from './pages/Payment';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { profile } = useAppContext();
@@ -43,6 +44,7 @@ function AppRoutes() {
         <Route path="ai-solver" element={<AISolver />} />
         <Route path="school-exams" element={<SchoolExams />} />
       </Route>
+      <Route path="/payment" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
     </Routes>
   );
 }

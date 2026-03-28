@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 import { Crown, CheckCircle2, Sparkles, Lock } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 
@@ -8,6 +9,7 @@ interface PremiumPaywallProps {
 }
 
 export default function PremiumPaywall({ featureName }: PremiumPaywallProps) {
+  const navigate = useNavigate();
   const { upgradeToPremium } = useAppContext();
 
   const features = [
@@ -62,7 +64,7 @@ export default function PremiumPaywall({ featureName }: PremiumPaywallProps) {
           </div>
 
           <button 
-            onClick={upgradeToPremium}
+            onClick={() => navigate('/payment')}
             className="w-full py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-bold text-lg shadow-lg shadow-amber-500/30 transition-all flex items-center justify-center gap-2"
           >
             <Sparkles className="w-5 h-5" />

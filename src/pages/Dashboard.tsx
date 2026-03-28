@@ -26,7 +26,15 @@ export default function Dashboard() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Merhaba, {profile?.name}! 👋</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-slate-900">Merhaba, {profile?.name}! 👋</h1>
+            {profile?.isPremium && (
+              <span className="px-2 py-0.5 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-black uppercase tracking-wider rounded-full flex items-center gap-1 shadow-sm">
+                <Sparkles className="w-2.5 h-2.5" />
+                Premium
+              </span>
+            )}
+          </div>
           <p className="text-slate-500">Bugün harika bir gün, hedeflerine bir adım daha yaklaş.</p>
         </div>
         <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-100">

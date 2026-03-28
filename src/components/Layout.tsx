@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import Logo from './Logo';
+import { useAppContext } from '../context/AppContext';
 
 const navigation = [
   { name: 'Özet', href: '/', icon: LayoutDashboard },
@@ -32,6 +33,7 @@ const navigation = [
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { profile } = useAppContext();
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -65,6 +67,19 @@ export default function Layout() {
               </NavLink>
             ))}
           </nav>
+          
+          {!profile?.isPremium && (
+            <div className="p-4 border-t">
+              <NavLink
+                to="/payment"
+                onClick={() => setSidebarOpen(false)}
+                className="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-bold text-sm shadow-lg shadow-amber-200"
+              >
+                <Menu className="w-4 h-4" /> {/* Using Menu as placeholder for Crown if not imported */}
+                Premium'a Geç
+              </NavLink>
+            </div>
+          )}
         </div>
       </div>
 
@@ -92,6 +107,18 @@ export default function Layout() {
             </NavLink>
           ))}
         </nav>
+
+        {!profile?.isPremium && (
+          <div className="p-4 border-t border-slate-100">
+            <NavLink
+              to="/payment"
+              className="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-bold text-sm shadow-lg shadow-amber-100 hover:shadow-amber-200 transition-all hover:-translate-y-0.5"
+            >
+              <X className="w-4 h-4 rotate-45" /> {/* Using X rotated as placeholder for Sparkles if not imported */}
+              Premium'a Geç
+            </NavLink>
+          </div>
+        )}
       </div>
 
       {/* Main content */}
