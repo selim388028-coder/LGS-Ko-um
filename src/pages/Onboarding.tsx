@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { Subject, UserProfile } from '../types';
 import { motion } from 'motion/react';
+import Logo from '../components/Logo';
 
 const SUBJECTS: Subject[] = [
   "Türkçe",
@@ -53,7 +54,8 @@ export default function Onboarding() {
         className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-8"
       >
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-indigo-600 mb-2">LGS Koçum'a Hoş Geldin!</h1>
+          <Logo className="justify-center mb-6" size="md" />
+          <h1 className="text-2xl font-bold text-slate-800 mb-2">LGS Koçum'a Hoş Geldin!</h1>
           <p className="text-slate-500">Sana özel bir çalışma planı hazırlayabilmemiz için seni biraz tanıyalım.</p>
         </div>
 

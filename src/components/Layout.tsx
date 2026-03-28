@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -13,8 +13,8 @@ import {
   Menu,
   X
 } from 'lucide-react';
-import { useState } from 'react';
 import { cn } from '../lib/utils';
+import Logo from './Logo';
 
 const navigation = [
   { name: 'Özet', href: '/', icon: LayoutDashboard },
@@ -39,7 +39,7 @@ export default function Layout() {
         <div className="fixed inset-0 bg-gray-900/80" onClick={() => setSidebarOpen(false)} />
         <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl flex flex-col">
           <div className="flex items-center justify-between h-16 px-6 border-b">
-            <span className="text-xl font-bold text-indigo-600">LGS Koçum</span>
+            <Logo size="sm" />
             <button onClick={() => setSidebarOpen(false)}>
               <X className="w-6 h-6 text-gray-500" />
             </button>
@@ -70,9 +70,7 @@ export default function Layout() {
       {/* Desktop sidebar */}
       <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 bg-white border-r border-slate-200">
         <div className="flex items-center h-16 px-6 border-b border-slate-200">
-          <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
-            LGS Koçum
-          </span>
+          <Logo size="sm" />
         </div>
         <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
           {navigation.map((item) => (
@@ -104,7 +102,7 @@ export default function Layout() {
           >
             <Menu className="w-6 h-6" />
           </button>
-          <span className="text-lg font-bold text-indigo-600">LGS Koçum</span>
+          <Logo size="sm" />
           <div className="w-6" /> {/* Spacer */}
         </header>
 
