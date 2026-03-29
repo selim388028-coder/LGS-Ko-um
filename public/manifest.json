@@ -1,6 +1,6 @@
 {
   "name": "Kazananlar Planı",
-  "short_name": "Kazananlar",
+  "short_name": "LGS Koçum",
   "description": "Kişiselleştirilmiş çalışma planı ve AI destekli soru çözümü.",
   "start_url": "/",
   "display": "standalone",
@@ -8,14 +8,14 @@
   "theme_color": "#4f46e5",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+      "src": "https://i.ibb.co/PsgPKwX1/Ads-z-tasar-m.jpg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/jpeg"
     },
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+      "src": "https://i.ibb.co/PsgPKwX1/Ads-z-tasar-m.jpg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpeg"
     }
   ]
 }
