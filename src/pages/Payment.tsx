@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CreditCard, Calendar, Lock, ShieldCheck, ArrowLeft, CheckCircle2, Loader2, Sparkles, AlertCircle, Building2, User, Copy, Check } from 'lucide-react';
+import { Calendar, Lock, ShieldCheck, ArrowLeft, CheckCircle2, Loader2, Sparkles, AlertCircle, Building2, User, Copy, Check, MessageSquare } from 'lucide-react';
 import { doc, updateDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 import { cn } from '../lib/utils';
-import { loadStripe } from '@stripe/stripe-js';
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
+import FeedbackModal from '../components/FeedbackModal';
 
 // IBAN Bilgileri - Burayı kendi bilgilerinizle güncelleyin
 const IBAN_DETAILS = {
@@ -21,14 +19,14 @@ const IBAN_DETAILS = {
 
 export default function Payment() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const searchParams = new URLSearchParams(window.location.search);
   const { user, profile } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'iban'>('card');
   const [copied, setCopied] = useState(false);
   const [notificationSent, setNotificationSent] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   // Ödeme bildirimi formu state'leri
   const [senderName, setSenderName] = useState('');
@@ -115,57 +113,6 @@ export default function Payment() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleStripeCheckout = async () => {
-    if (!user) {
-      setError("Lütfen önce giriş yapın.");
-      return;
-    }
-
-    setIsProcessing(true);
-    setError(null);
-
-    try {
-      // Check if Stripe is configured on client
-      const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-      if (!publishableKey || publishableKey.includes('your_')) {
-        setError("Kredi kartı ile ödeme şu an devre dışı. Lütfen IBAN ile ödeme yapın.");
-        setIsProcessing(false);
-        return;
-      }
-
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.uid,
-          userEmail: user.email,
-        }),
-      });
-
-      const session = await response.json();
-
-      if (session.isMock) {
-        setError("Kredi kartı ile ödeme şu an devre dışı. Lütfen IBAN ile ödeme yapın.");
-        setIsProcessing(false);
-        return;
-      }
-
-      if (session.error) {
-        throw new Error(session.error);
-      }
-
-      if (session.url) {
-        window.location.href = session.url;
-      } else {
-        throw new Error("Checkout URL'i alınamadı.");
-      }
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || "Ödeme başlatılamadı. Lütfen tekrar deneyin.");
-      setIsProcessing(false);
-    }
-  };
-
   if (isSuccess) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
@@ -201,39 +148,27 @@ export default function Payment() {
 
         <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
           <div className="p-8">
-            <div className="flex items-center gap-2 mb-6">
-              <button 
-                onClick={() => navigate(-1)}
-                className="p-2 hover:bg-slate-100 rounded-full transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 text-slate-500" />
-              </button>
-              <h2 className="text-xl font-bold text-slate-800">Üyelik Planı</h2>
+            <div className="flex items-center gap-2 mb-6 justify-between">
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => navigate(-1)}
+                  className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5 text-slate-500" />
+                </button>
+                <h2 className="text-xl font-bold text-slate-800">Üyelik Planı</h2>
+              </div>
             </div>
 
-            <div className="bg-indigo-600 rounded-2xl p-6 mb-8 text-white relative overflow-hidden">
+            <div className="bg-indigo-600 rounded-2xl p-4 mb-6 text-white relative overflow-hidden">
               <div className="relative z-10">
-                <p className="text-indigo-100 font-medium mb-1">Kazananlar Planı</p>
+                <p className="text-indigo-100 font-medium mb-1 text-sm">Kazananlar Planı</p>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-black">359 TL</span>
-                  <span className="text-indigo-200 text-sm">/ay</span>
+                  <span className="text-3xl font-black">359 TL</span>
+                  <span className="text-indigo-200 text-xs">/ay</span>
                 </div>
-                <ul className="mt-4 space-y-2">
-                  <li className="flex items-center gap-2 text-sm text-indigo-50">
-                    <CheckCircle2 className="w-4 h-4" />
-                    Sınırsız AI Soru Çözümü
-                  </li>
-                  <li className="flex items-center gap-2 text-sm text-indigo-50">
-                    <CheckCircle2 className="w-4 h-4" />
-                    Kişiselleştirilmiş Çalışma Planı
-                  </li>
-                  <li className="flex items-center gap-2 text-sm text-indigo-50">
-                    <CheckCircle2 className="w-4 h-4" />
-                    Detaylı Deneme Analizleri
-                  </li>
-                </ul>
               </div>
-              <Sparkles className="absolute -right-4 -bottom-4 w-32 h-32 text-indigo-500/20" />
+              <Sparkles className="absolute -right-4 -bottom-4 w-24 h-24 text-indigo-500/20" />
             </div>
 
             {error && (
@@ -243,134 +178,89 @@ export default function Payment() {
               </div>
             )}
 
-            <div className="flex p-1 bg-slate-100 rounded-xl mb-6">
-              <button
-                onClick={() => setPaymentMethod('card')}
-                className={cn(
-                  "flex-1 py-2 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2",
-                  paymentMethod === 'card' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
-                )}
-              >
-                <CreditCard className="w-4 h-4" />
-                Kart ile Öde
-              </button>
-              <button
-                onClick={() => setPaymentMethod('iban')}
-                className={cn(
-                  "flex-1 py-2 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2",
-                  paymentMethod === 'iban' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
-                )}
-              >
-                <Building2 className="w-4 h-4" />
-                IBAN / Havale
-              </button>
+            <div className="space-y-6">
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3">
+                <div>
+                  <p className="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1">Banka</p>
+                  <p className="text-slate-800 font-bold text-sm">{IBAN_DETAILS.bankName}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1">Alıcı</p>
+                  <p className="text-slate-800 font-bold text-sm">{IBAN_DETAILS.accountHolder}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1">IBAN</p>
+                  <div className="flex items-center justify-between gap-2 bg-white p-2 rounded-xl border border-slate-200">
+                    <code className="text-slate-800 font-mono text-xs break-all">{IBAN_DETAILS.iban}</code>
+                    <button 
+                      onClick={() => copyToClipboard(IBAN_DETAILS.iban)}
+                      className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-indigo-600 shrink-0"
+                    >
+                      {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="p-2 bg-amber-50 rounded-xl border border-amber-100">
+                  <p className="text-[10px] text-amber-700 leading-relaxed">
+                    <strong>Önemli:</strong> Açıklama kısmına mutlaka <strong>Ad Soyad</strong> yazınız.
+                  </p>
+                </div>
+              </div>
+
+              {!notificationSent ? (
+                <form onSubmit={handleIbanNotification} className="space-y-3">
+                  <h3 className="text-sm font-bold text-slate-800">Ödeme Bildirimi Yap</h3>
+                  <div>
+                    <label className="block text-xs text-slate-500 mb-1 ml-1">Gönderen Ad Soyad</label>
+                    <input 
+                      type="text"
+                      required
+                      value={senderName}
+                      onChange={(e) => setSenderName(e.target.value)}
+                      placeholder="Adınız Soyadınız"
+                      className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-500 mb-1 ml-1">Ödeme Tarihi</label>
+                    <input 
+                      type="date"
+                      required
+                      value={paymentDate}
+                      onChange={(e) => setPaymentDate(e.target.value)}
+                      className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                    />
+                  </div>
+                  <button 
+                    type="submit"
+                    disabled={isProcessing}
+                    className="w-full py-3 bg-slate-800 hover:bg-slate-900 disabled:bg-slate-400 text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                  >
+                    {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : "Ödeme Bildirimi Gönder"}
+                  </button>
+                </form>
+              ) : (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-center"
+                >
+                  <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+                  <h4 className="font-bold text-emerald-800 mb-1 text-sm">Bildirim Alındı</h4>
+                  <p className="text-[10px] text-emerald-600">Ödemeniz kontrol edildikten sonra üyeliğiniz aktif edilecektir.</p>
+                </motion.div>
+              )}
             </div>
 
-            {paymentMethod === 'card' ? (
-              <>
-                <button 
-                  onClick={handleStripeCheckout}
-                  disabled={isProcessing}
-                  className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white rounded-xl font-bold text-lg shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      İşleniyor...
-                    </>
-                  ) : (
-                    <>
-                      <CreditCard className="w-5 h-5" />
-                      Güvenli Ödeme Yap
-                    </>
-                  )}
-                </button>
-
-                <p className="mt-6 text-center text-xs text-slate-400 leading-relaxed">
-                  Ödemeniz Stripe güvencesiyle gerçekleştirilir. İstediğiniz zaman iptal edebilirsiniz.
-                </p>
-
-                <div className="mt-8 flex items-center justify-center gap-4 opacity-50 grayscale">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" alt="Visa" className="h-4" />
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" alt="Mastercard" className="h-6" />
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/1200px-PayPal.svg.png" alt="Paypal" className="h-4" />
-                </div>
-              </>
-            ) : (
-              <div className="space-y-6">
-                <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 space-y-4">
-                  <div>
-                    <p className="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1">Banka</p>
-                    <p className="text-slate-800 font-bold">{IBAN_DETAILS.bankName}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1">Alıcı</p>
-                    <p className="text-slate-800 font-bold">{IBAN_DETAILS.accountHolder}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1">IBAN</p>
-                    <div className="flex items-center justify-between gap-2 bg-white p-3 rounded-xl border border-slate-200">
-                      <code className="text-slate-800 font-mono text-sm break-all">{IBAN_DETAILS.iban}</code>
-                      <button 
-                        onClick={() => copyToClipboard(IBAN_DETAILS.iban)}
-                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-indigo-600 shrink-0"
-                      >
-                        {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="p-3 bg-amber-50 rounded-xl border border-amber-100">
-                    <p className="text-xs text-amber-700 leading-relaxed">
-                      <strong>Önemli:</strong> Açıklama kısmına mutlaka <strong>Ad Soyad</strong> yazınız.
-                    </p>
-                  </div>
-                </div>
-
-                {!notificationSent ? (
-                  <form onSubmit={handleIbanNotification} className="space-y-4">
-                    <h3 className="text-sm font-bold text-slate-800">Ödeme Bildirimi Yap</h3>
-                    <div>
-                      <label className="block text-xs text-slate-500 mb-1 ml-1">Gönderen Ad Soyad</label>
-                      <input 
-                        type="text"
-                        required
-                        value={senderName}
-                        onChange={(e) => setSenderName(e.target.value)}
-                        placeholder="Adınız Soyadınız"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-slate-500 mb-1 ml-1">Ödeme Tarihi</label>
-                      <input 
-                        type="date"
-                        required
-                        value={paymentDate}
-                        onChange={(e) => setPaymentDate(e.target.value)}
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                      />
-                    </div>
-                    <button 
-                      type="submit"
-                      disabled={isProcessing}
-                      className="w-full py-4 bg-slate-800 hover:bg-slate-900 disabled:bg-slate-400 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2"
-                    >
-                      {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : "Ödeme Bildirimi Gönder"}
-                    </button>
-                  </form>
-                ) : (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="p-6 bg-emerald-50 border border-emerald-100 rounded-2xl text-center"
-                  >
-                    <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-3" />
-                    <h4 className="font-bold text-emerald-800 mb-1">Bildirim Alındı</h4>
-                    <p className="text-xs text-emerald-600">Ödemeniz kontrol edildikten sonra (genellikle 1 saat içinde) üyeliğiniz aktif edilecektir.</p>
-                  </motion.div>
-                )}
-              </div>
-            )}
+            <div className="mt-6 pt-6 border-t border-slate-100 text-center">
+              <button 
+                onClick={() => setIsFeedbackOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-bold transition-colors"
+              >
+                <MessageSquare className="w-4 h-4" />
+                Sorun mu var?
+              </button>
+            </div>
           </div>
         </div>
 
@@ -379,6 +269,7 @@ export default function Payment() {
           256-bit SSL Güvenli Ödeme Altyapısı
         </p>
       </motion.div>
+      <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
     </div>
   );
 }

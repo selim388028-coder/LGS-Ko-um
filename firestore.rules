@@ -151,6 +151,12 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.userId || isAdmin());
+      allow update: if isAuthenticated() && request.auth.uid == resource.data.userId && request.resource.data.isRead == true;
+      allow delete: if isAdmin();
+    }
+
     // Default deny
     match /{path=**} {
       allow read, write: if false;
