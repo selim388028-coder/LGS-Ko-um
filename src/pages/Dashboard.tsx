@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useAppContext } from '../context/AppContext';
-import { Target, TrendingUp, BookOpen, AlertCircle, CheckCircle2, Bot, Sparkles, FileText } from 'lucide-react';
+import { Target, TrendingUp, BookOpen, AlertCircle, CheckCircle2, Bot, Sparkles, FileText, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ResponsiveContainer, LineChart, Line, Tooltip } from 'recharts';
 import { cn } from '../lib/utils';
@@ -48,6 +48,17 @@ export default function Dashboard() {
             <p className="text-sm font-bold text-slate-900">{profile?.targetHighSchool}</p>
           </div>
         </div>
+      </div>
+
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-lg font-bold text-slate-800">Özet</h2>
+        <button 
+          onClick={() => navigate('/exams')}
+          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-md hover:bg-indigo-700 transition-all group"
+        >
+          Denemeye Git
+          <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+        </button>
       </div>
 
       {/* Announcement Banner */}

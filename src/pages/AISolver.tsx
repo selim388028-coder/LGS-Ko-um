@@ -13,19 +13,56 @@ export default function AISolver() {
   const [error, setError] = useState<string | null>(null);
   const [isMicOn, setIsMicOn] = useState(true);
   const [inputMode, setInputMode] = useState<'screen' | 'camera'>('screen');
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [subtitles, setSubtitles] = useState('');
+  const [micLevel, setMicLevel] = useState(0);
+  const [aiIsSpeaking, setAiIsSpeaking] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string>('');
   
   const sessionRef = useRef<any>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const micContextRef = useRef<AudioContext | null>(null);
   const activeStreamRef = useRef<MediaStream | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const nextPlayTimeRef = useRef<number>(0);
 
-  const stopSession = () => {
+  const addDebug = (msg: string) => {
+    console.log(`[AISolver] ${msg}`);
+    setDebugInfo(prev => `${new Date().toLocaleTimeString()}: ${msg}\n${prev}`.slice(0, 500));
+  };
+
+  const forceResumeAudio = async () => {
+    if (audioContextRef.current) {
+      addDebug("Ses motoru zorla yeniden başlatılıyor...");
+      try {
+        await audioContextRef.current.resume();
+        addDebug(`Ses motoru durumu: ${audioContextRef.current.state}`);
+        
+        // Play a quick test beep
+        const osc = audioContextRef.current.createOscillator();
+        const gain = audioContextRef.current.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, audioContextRef.current.currentTime);
+        gain.gain.setValueAtTime(0.1, audioContextRef.current.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContextRef.current.currentTime + 0.2);
+        osc.connect(gain);
+        gain.connect(audioContextRef.current.destination);
+        osc.start();
+        osc.stop(audioContextRef.current.currentTime + 0.2);
+      } catch (e) {
+        addDebug(`Ses başlatma hatası: ${e}`);
+      }
+    }
+  };
+
+  const stopSession = (reason: string = "Bilinmeyen/Unmount") => {
+    addDebug(`Oturum durduruluyor (Neden: ${reason})`);
     if (sessionRef.current) {
-      sessionRef.current.close();
+      try {
+        sessionRef.current.close();
+      } catch (e) {}
       sessionRef.current = null;
     }
     if (activeStreamRef.current) {
@@ -36,6 +73,10 @@ export default function AISolver() {
       micStreamRef.current.getTracks().forEach(t => t.stop());
       micStreamRef.current = null;
     }
+    if (micContextRef.current) {
+      micContextRef.current.close();
+      micContextRef.current = null;
+    }
     if (audioContextRef.current) {
       audioContextRef.current.close();
       audioContextRef.current = null;
@@ -43,6 +84,9 @@ export default function AISolver() {
     setIsActive(false);
     setIsConnecting(false);
     setSubtitles('');
+    setMicLevel(0);
+    setAiIsSpeaking(false);
+    setIsSpeaking(false);
   };
 
   const startSession = async (mode: 'screen' | 'camera') => {
@@ -50,6 +94,7 @@ export default function AISolver() {
     setError(null);
     setInputMode(mode);
     setSubtitles('');
+    addDebug(`Oturum başlatılıyor: ${mode}`);
     
     try {
       if (!window.isSecureContext) {
@@ -57,206 +102,320 @@ export default function AISolver() {
       }
 
       if (!navigator.mediaDevices) {
-        throw new Error("Tarayıcınız kamera veya ekran paylaşımını desteklemiyor.");
+        throw new Error("Tarayıcınız medya cihazlarını (kamera/mikrofon) desteklemiyor.");
       }
 
-      // 1. Get Visual Stream
+      if (mode === 'screen' && !navigator.mediaDevices.getDisplayMedia) {
+        throw new Error("Tarayıcınız ekran paylaşımını desteklemiyor. Lütfen güncel bir tarayıcı kullanın.");
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error("Sistem yapılandırma hatası: API Anahtarı bulunamadı.");
+      }
+
+      // 1. Get Media Streams
+      addDebug("Medya izinleri isteniyor...");
       let visualStream: MediaStream;
-      if (mode === 'screen') {
-        visualStream = await navigator.mediaDevices.getDisplayMedia({
-          video: { frameRate: 5 },
-          audio: false
-        });
-      } else {
-        visualStream = await navigator.mediaDevices.getUserMedia({
-          video: { 
-            facingMode: "environment", // Prefer back camera on mobile
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          },
-          audio: false
-        });
-      }
-      activeStreamRef.current = visualStream;
+      let micStream: MediaStream;
 
-      // 2. Get Mic Stream
-      const micStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          sampleRate: 16000,
-          channelCount: 1,
-          echoCancellation: true,
-          noiseSuppression: true
+      try {
+        if (mode === 'camera') {
+          const combinedStream = await navigator.mediaDevices.getUserMedia({
+            video: { 
+              facingMode: "environment",
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            },
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            }
+          });
+          visualStream = new MediaStream(combinedStream.getVideoTracks());
+          micStream = new MediaStream(combinedStream.getAudioTracks());
+          addDebug("Kamera ve Mikrofon akışları başarıyla alındı.");
+        } else {
+          addDebug("Ekran paylaşımı izni bekleniyor...");
+          visualStream = await navigator.mediaDevices.getDisplayMedia({
+            video: { frameRate: 15 },
+            audio: false
+          });
+          addDebug("Ekran akışı alındı. Mikrofon izni bekleniyor...");
+          micStream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            }
+          });
+          addDebug("Mikrofon akışı başarıyla alındı.");
         }
-      });
+      } catch (mediaErr: any) {
+        addDebug(`Medya Hatası: ${mediaErr.name} - ${mediaErr.message}`);
+        if (mediaErr.name === 'NotAllowedError') {
+          throw new Error("Kamera veya mikrofon izni reddedildi. Lütfen tarayıcı ayarlarından izin verin.");
+        }
+        throw new Error(`Medya erişim hatası: ${mediaErr.message}`);
+      }
+      
+      activeStreamRef.current = visualStream;
       micStreamRef.current = micStream;
 
       // 3. Setup Audio Context for playback
+      addDebug("Ses motoru hazırlanıyor...");
       const audioCtx = new AudioContext({ sampleRate: 24000 });
-      await audioCtx.resume();
+      if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+      }
       audioContextRef.current = audioCtx;
       nextPlayTimeRef.current = audioCtx.currentTime;
+      addDebug("Ses motoru hazır.");
 
       // 4. Initialize Gemini Live
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      addDebug("Gemini Live bağlantısı kuruluyor...");
+      const ai = new GoogleGenAI({ apiKey });
+      
       const session = await ai.live.connect({
         model: "gemini-3.1-flash-live-preview",
         config: {
           responseModalities: [Modality.AUDIO],
           speechConfig: {
-            voiceConfig: { prebuiltVoiceConfig: { voiceName: "Zephyr" } },
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: "Fenrir" } },
           },
-          systemInstruction: `Sen bir LGS koçusun. Öğrencinin paylaştığı ${mode === 'screen' ? 'ekrandaki' : 'kameradaki'} soruları görmene izin verildi. Soruları adım adım çözmesine yardımcı ol, ipuçları ver ama hemen cevabı söyleme. Motivasyonel ve destekleyici bir dil kullan. Yanıtlarını sadece sesli olarak ver.`,
+          systemInstruction: `Sen bir LGS (Liselere Geçiş Sistemi) koçusun. Adın "LGS Koçum". Öğrencinin paylaştığı ${mode === 'screen' ? 'ekrandaki' : 'kameradaki'} soruları görüyorsun. 
+          GÖREVİN:
+          1. Soruları adım adım çözmesine rehberlik et.
+          2. Hemen cevabı söyleme, öğrenciyi düşünmeye sevk et.
+          3. Motivasyonel, enerjik ve destekleyici bir erkek sesi tonuyla konuş.
+          4. Yanıtların kısa, öz ve anlaşılır olsun.
+          5. Öğrenci bir soruda takıldığında ona ipucu ver.
+          6. ÖNEMLİ: Oturumu asla kendiliğinden kapatma. Her zaman öğrencinin yeni bir şey sormasını veya bir işlem yapmasını bekle.`,
         },
         callbacks: {
           onopen: () => {
+            addDebug("Bağlantı kanalı açıldı.");
             setIsActive(true);
             setIsConnecting(false);
-            if (sessionRef.current) {
-              startStreaming(sessionRef.current);
-              sessionRef.current.sendRealtimeInput({
-                text: "Merhaba, ekranını görüyorum. Hangi soruda takıldın?"
-              });
-            }
           },
           onmessage: async (message) => {
-            const parts = message.serverContent?.modelTurn?.parts;
-            if (parts) {
-              for (const part of parts) {
-                if (part.inlineData && part.inlineData.data) {
-                  playAudioChunk(part.inlineData.data);
+            try {
+              if (message.serverContent) {
+                if (message.serverContent.modelTurn) {
+                  const parts = message.serverContent.modelTurn.parts;
+                  if (parts) {
+                    let hasAudio = false;
+                    for (const part of parts) {
+                      if (part.inlineData && part.inlineData.data) {
+                        hasAudio = true;
+                        playAudioChunk(part.inlineData.data);
+                      }
+                      if (part.text) {
+                        setSubtitles(prev => prev + part.text);
+                      }
+                    }
+                    if (hasAudio) {
+                      setAiIsSpeaking(true);
+                    }
+                  }
                 }
-                if (part.text) {
-                  setSubtitles(prev => prev + part.text);
+                
+                if (message.serverContent.interrupted) {
+                  addDebug("AI sözü kesildi (Kullanıcı konuştu).");
+                  nextPlayTimeRef.current = audioContextRef.current?.currentTime || 0;
+                  setSubtitles('');
+                  setAiIsSpeaking(false);
+                }
+
+                if (message.serverContent.turnComplete) {
+                  addDebug("AI yanıtı tamamladı. Dinlemeye devam ediyor...");
+                  setTimeout(() => setAiIsSpeaking(false), 1000);
                 }
               }
-            }
-            
-            if (message.serverContent?.interrupted) {
-              // Stop current playback if interrupted
-              nextPlayTimeRef.current = audioContextRef.current?.currentTime || 0;
-              setSubtitles('');
+            } catch (msgErr) {
+              addDebug(`Mesaj işleme hatası: ${msgErr}`);
             }
           },
-          onclose: () => stopSession(),
+          onclose: () => {
+            stopSession("Sunucu bağlantıyı kapattı.");
+          },
           onerror: (err) => {
-            console.error("Gemini Live Error:", err);
-            setError("Bağlantı hatası oluştu.");
-            stopSession();
+            stopSession(`Hata: ${err.message || 'Bağlantı hatası'}`);
           }
         }
       });
+      
       sessionRef.current = session;
+      
+      // Start streaming immediately after connection is established
+      addDebug("Akış başlatılıyor...");
+      startStreaming(session);
+      session.sendRealtimeInput({
+        text: "Merhaba! Ben LGS Koçun. Ekranını görüyorum, harika bir çalışma seansı bizi bekliyor. Hangi sorudan başlayalım?"
+      });
 
     } catch (err: any) {
-      console.error("Start Session Error:", err);
-      setError(err.message || "Oturum başlatılamadı. Lütfen mikrofon ve kamera/ekran izinlerini kontrol edin.");
+      addDebug(`Başlatma Hatası: ${err.message}`);
+      setError(err.message || "Oturum başlatılamadı.");
       setIsConnecting(false);
-      stopSession();
+      stopSession("Başlatma Hatası");
     }
   };
 
   const startStreaming = (session: any) => {
-    // Stream Visual Frames
-    const video = document.createElement('video');
-    video.srcObject = activeStreamRef.current;
-    video.play();
-    videoRef.current = video;
-
-    const canvas = document.createElement('canvas');
-    canvasRef.current = canvas;
-    const ctx = canvas.getContext('2d');
-
-    const sendFrame = () => {
-      if (!sessionRef.current || !isActive) return;
-      
-      if (ctx && video.videoWidth) {
-        canvas.width = 640; // Scale down for performance
-        canvas.height = (video.videoHeight / video.videoWidth) * 640;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const base64Frame = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
-        
-        session.sendRealtimeInput({
-          video: { data: base64Frame, mimeType: 'image/jpeg' }
-        });
+    try {
+      if (!activeStreamRef.current) {
+        addDebug("Hata: Aktif medya akışı bulunamadı.");
+        return;
       }
-      setTimeout(sendFrame, 1000); // Send 1 frame per second
-    };
-    sendFrame();
 
-    // Stream Mic Audio
-    const audioCtx = new AudioContext({ sampleRate: 16000 });
-    const source = audioCtx.createMediaStreamSource(micStreamRef.current!);
-    const processor = audioCtx.createScriptProcessor(4096, 1, 1);
+      // Stream Visual Frames
+      const video = document.createElement('video');
+      video.srcObject = activeStreamRef.current;
+      video.muted = true;
+      video.playsInline = true;
+      video.play().catch(e => addDebug(`Video oynatma hatası: ${e}`));
+      videoRef.current = video;
 
-    source.connect(processor);
-    const gainNode = audioCtx.createGain();
-    gainNode.gain.value = 0;
-    processor.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
+      const canvas = document.createElement('canvas');
+      canvasRef.current = canvas;
+      const ctx = canvas.getContext('2d');
 
-    processor.onaudioprocess = (e) => {
-      if (!sessionRef.current || !isActive || !isMicOn) return;
+      const sendFrame = () => {
+        try {
+          if (!sessionRef.current || !isActive) return;
+          
+          if (ctx && video.videoWidth) {
+            canvas.width = 640; // Scale down for performance
+            canvas.height = (video.videoHeight / video.videoWidth) * 640;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const base64Frame = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+            
+            session.sendRealtimeInput({
+              video: { data: base64Frame, mimeType: 'image/jpeg' }
+            });
+          }
+          setTimeout(sendFrame, 1000); // Send 1 frame per second
+        } catch (frameErr) {
+          addDebug(`Görüntü gönderim hatası: ${frameErr}`);
+        }
+      };
+      sendFrame();
+
+      // Stream Mic Audio
+      const micCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
+      micContextRef.current = micCtx;
       
-      const inputData = e.inputBuffer.getChannelData(0);
-      // Convert Float32 to Int16 PCM
-      const pcmData = new Int16Array(inputData.length);
-      for (let i = 0; i < inputData.length; i++) {
-        pcmData[i] = Math.max(-1, Math.min(1, inputData[i])) * 0x7FFF;
+      const source = micCtx.createMediaStreamSource(micStreamRef.current || activeStreamRef.current);
+      const processor = micCtx.createScriptProcessor(4096, 1, 1);
+
+      source.connect(processor);
+      const gainNode = micCtx.createGain();
+      gainNode.gain.value = 0;
+      processor.connect(gainNode);
+      gainNode.connect(micCtx.destination);
+
+      processor.onaudioprocess = (e) => {
+        try {
+          if (!sessionRef.current || !isMicOn || !isActive) return;
+          
+          // Ensure mic context is running
+          if (micCtx.state === 'suspended') {
+            micCtx.resume();
+          }
+
+          const inputData = e.inputBuffer.getChannelData(0);
+          
+          // Calculate mic level for UI feedback
+          let sum = 0;
+          for (let i = 0; i < inputData.length; i++) {
+            sum += inputData[i] * inputData[i];
+          }
+          const rms = Math.sqrt(sum / inputData.length);
+          setMicLevel(rms);
+          setIsSpeaking(rms > 0.01);
+
+          // Convert Float32 to Int16 PCM
+          const pcmData = new Int16Array(inputData.length);
+          for (let i = 0; i < inputData.length; i++) {
+            pcmData[i] = Math.max(-1, Math.min(1, inputData[i])) * 0x7FFF;
+          }
+          
+          // More efficient base64 encoding
+          const uint8Array = new Uint8Array(pcmData.buffer);
+          let binary = '';
+          const len = uint8Array.byteLength;
+          for (let i = 0; i < len; i++) {
+            binary += String.fromCharCode(uint8Array[i]);
+          }
+          const base64Audio = btoa(binary);
+          
+          session.sendRealtimeInput({
+            audio: { data: base64Audio, mimeType: 'audio/pcm;rate=16000' }
+          });
+        } catch (audioErr) {
+          addDebug(`Ses gönderim hatası: ${audioErr}`);
+        }
+      };
+
+      // Ensure mic context is resumed
+      if (micCtx.state === 'suspended') {
+        micCtx.resume();
       }
-      
-      const bytes = new Uint8Array(pcmData.buffer);
-      let binary = '';
-      for (let i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      const base64Audio = btoa(binary);
-      
-      session.sendRealtimeInput({
-        audio: { data: base64Audio, mimeType: 'audio/pcm;rate=16000' }
-      });
-    };
+    } catch (streamErr) {
+      addDebug(`Akış başlatma hatası: ${streamErr}`);
+    }
   };
 
   const playAudioChunk = (base64Data: string) => {
     if (!audioContextRef.current) return;
-    console.log("playAudioChunk called, base64 length:", base64Data.length);
-    console.log("AudioContext state:", audioContextRef.current.state);
 
-    if (audioContextRef.current.state === 'suspended') {
-      audioContextRef.current.resume();
+    try {
+      if (audioContextRef.current.state !== 'running') {
+        audioContextRef.current.resume();
+      }
+
+      const binary = atob(base64Data);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      
+      const arrayBuffer = bytes.buffer;
+      const length = Math.floor(arrayBuffer.byteLength / 2);
+      const pcmData = new Int16Array(arrayBuffer, 0, length);
+      
+      const floatData = new Float32Array(pcmData.length);
+      for (let i = 0; i < pcmData.length; i++) {
+        floatData[i] = pcmData[i] / 32768.0;
+      }
+
+      const buffer = audioContextRef.current.createBuffer(1, floatData.length, 24000);
+      buffer.getChannelData(0).set(floatData);
+
+      const source = audioContextRef.current.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioContextRef.current.destination);
+
+      // Improved scheduling to prevent gaps and overlaps
+      const now = audioContextRef.current.currentTime;
+      let startTime = nextPlayTimeRef.current;
+      
+      // If we're behind or just starting, start with a small buffer
+      if (startTime < now) {
+        startTime = now + 0.05; 
+      }
+
+      source.start(startTime);
+      nextPlayTimeRef.current = startTime + buffer.duration;
+    } catch (e) {
+      addDebug(`Ses çalma hatası: ${e}`);
     }
-
-    const binary = atob(base64Data);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-    
-    // PCM 16bit is 2 bytes per sample
-    const validLength = bytes.length % 2 === 0 ? bytes.length : bytes.length - 1;
-    const pcmData = new Int16Array(bytes.buffer, 0, validLength / 2);
-    const floatData = new Float32Array(pcmData.length);
-    for (let i = 0; i < pcmData.length; i++) {
-      floatData[i] = pcmData[i] / 0x7FFF;
-    }
-
-    const buffer = audioContextRef.current.createBuffer(1, floatData.length, 24000);
-    buffer.getChannelData(0).set(floatData);
-    console.log("Audio buffer created, duration:", buffer.duration);
-
-    const source = audioContextRef.current.createBufferSource();
-    source.buffer = buffer;
-    source.connect(audioContextRef.current.destination);
-
-    const startTime = Math.max(audioContextRef.current.currentTime, nextPlayTimeRef.current);
-    console.log("Playing audio at:", startTime);
-    source.start(startTime);
-    nextPlayTimeRef.current = startTime + buffer.duration;
-    console.log("Audio source connected and started.");
   };
 
   useEffect(() => {
-    return () => stopSession();
+    return () => stopSession("Sayfadan Ayrılma/Unmount");
   }, []);
 
   if (!profile?.isPremium) {
@@ -348,26 +507,36 @@ export default function AISolver() {
                       inputMode === 'camera' && "scale-x-[-1]" // Mirror camera for natural feel
                     )}
                   />
-                  <div className="absolute top-4 right-4">
+                  <div className="absolute top-4 right-4 flex gap-2">
+                    {isMicOn && (
+                      <div className="flex items-center gap-1 px-2 py-1 bg-black/50 backdrop-blur-md rounded-full border border-white/20">
+                        <div 
+                          className="w-1.5 bg-emerald-500 rounded-full transition-all duration-75" 
+                          style={{ height: `${Math.max(4, micLevel * 100)}px` }}
+                        />
+                        <Mic className="w-3 h-3 text-white" />
+                      </div>
+                    )}
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-black/50 backdrop-blur-md rounded-full border border-white/20">
                       <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse" />
                       <span className="text-[10px] font-bold text-white uppercase tracking-wider">Canlı</span>
                     </div>
                   </div>
                   {/* Pulse Overlay */}
-                  <div className="absolute inset-0 pointer-events-none border-2 border-indigo-500/50 rounded-2xl animate-pulse" />
+                  <div className={cn(
+                    "absolute inset-0 pointer-events-none border-4 rounded-2xl transition-all duration-500",
+                    aiIsSpeaking ? "border-indigo-500/50 scale-[1.02]" : "border-transparent"
+                  )} />
                 </div>
               </div>
 
               <div className="text-center space-y-2">
                 <div className="flex items-center justify-center gap-2 text-indigo-600 mb-2">
-                  <Bot className="w-6 h-6" />
+                  <Bot className={cn("w-6 h-6", aiIsSpeaking && "animate-bounce")} />
                   <span className="font-bold uppercase tracking-widest text-xs">AI Koçun Bağlı</span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900 px-4">
-                  {inputMode === 'screen' 
-                    ? 'Ekranını İnceliyorum...' 
-                    : 'Sorunu Görüyorum...'}
+                  {isSpeaking ? 'Seni Dinliyorum...' : (aiIsSpeaking ? 'AI Koç Konuşuyor...' : 'Sorunu Bekliyorum...')}
                 </h2>
                 <div className="min-h-[60px] px-6 flex items-center justify-center">
                   {subtitles ? (
@@ -376,13 +545,19 @@ export default function AISolver() {
                     </p>
                   ) : (
                     <p className="text-sm sm:text-base text-slate-500 italic">
-                      {inputMode === 'screen' 
-                        ? '"Şu an ekranını görebiliyorum, hangi soruda takıldın?"' 
-                        : '"Soruyu net görebiliyorum, haydi birlikte çözelim!"'}
+                      {isSpeaking ? '"Şu an seni dinliyorum, devam et..."' : '"Hangi soruda takıldın? Sesli olarak sorabilirsin."'}
                     </p>
                   )}
                 </div>
               </div>
+
+              {/* Debug Info (Only for development/troubleshooting) */}
+              {debugInfo && (
+                <div className="mx-6 p-4 bg-slate-900 rounded-xl text-[10px] font-mono text-emerald-400 overflow-auto max-h-32">
+                  <p className="font-bold mb-1 uppercase text-slate-500">Sistem Günlüğü:</p>
+                  <pre className="whitespace-pre-wrap">{debugInfo}</pre>
+                </div>
+              )}
 
               {/* Controls */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 px-4">
@@ -398,11 +573,18 @@ export default function AISolver() {
                 </button>
                 
                 <button
-                  onClick={stopSession}
+                  onClick={() => stopSession("Kullanıcı")}
                   className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 sm:py-6 bg-rose-600 text-white rounded-2xl font-bold text-lg shadow-lg shadow-rose-200 hover:bg-rose-700 transition-all active:scale-95"
                 >
                   <Square className="w-6 h-6 fill-current" />
                   Oturumu Kapat
+                </button>
+
+                <button
+                  onClick={forceResumeAudio}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all"
+                >
+                  Ses Gelmiyor mu?
                 </button>
               </div>
 

@@ -24,6 +24,13 @@ import Profile from './pages/Profile';
 function ProtectedRoute() {
   const { user, profile, loading, isAuthReady } = useAuth();
   
+  // Debug logging for unmount issues
+  React.useEffect(() => {
+    if (!isAuthReady || loading) {
+      console.log(`[ProtectedRoute] Spinner gösteriliyor. isAuthReady: ${isAuthReady}, loading: ${loading}`);
+    }
+  }, [isAuthReady, loading]);
+
   if (!isAuthReady || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -69,7 +76,7 @@ function AppRoutes() {
           <Route path="/ai-coach" element={<AICoach />} />
           <Route path="/ai-solver" element={<AISolver />} />
           <Route path="/school-exams" element={<SchoolExams />} />
-          <Route path="/take-exam" element={<TakeExam />} />
+          <Route path="/take-exam/:type" element={<TakeExam />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
         <Route path="/payment" element={<Payment />} />

@@ -40,6 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log(`[AuthContext] onAuthStateChanged: ${user ? user.uid : 'null'}`);
       setUser(user);
       if (!user) {
         setProfile(null);
@@ -54,15 +55,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!user) return;
 
-    setLoading(true);
+    // Only set loading to true if we don't have a profile yet
+    if (!profile) {
+      console.log(`[AuthContext] Profile yükleniyor, loading: true`);
+      setLoading(true);
+    }
+    
     const path = `users/${user.uid}`;
     const unsubscribe = onSnapshot(doc(db, 'users', user.uid), (doc) => {
+      console.log(`[AuthContext] Profile snapshot alındı: ${doc.exists() ? 'mevcut' : 'yok'}`);
       if (doc.exists()) {
         setProfile(doc.data() as UserProfile);
       }
       setLoading(false);
       setIsAuthReady(true);
     }, (error) => {
+      console.error(`[AuthContext] Profile snapshot hatası: ${error}`);
       handleFirestoreError(error, OperationType.GET, path);
       setLoading(false);
       setIsAuthReady(true);
