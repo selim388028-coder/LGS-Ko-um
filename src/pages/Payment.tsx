@@ -248,6 +248,7 @@ export default function Payment() {
                   <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
                   <h4 className="font-bold text-emerald-800 mb-1 text-sm">Bildirim Alındı</h4>
                   <p className="text-[10px] text-emerald-600">Ödemeniz kontrol edildikten sonra üyeliğiniz aktif edilecektir.</p>
+                  <p className="text-[10px] text-emerald-600 font-bold mt-1">Ortalama 20 dakika içinde premiumunuz hesabınıza tanımlanır.</p>
                 </motion.div>
               )}
             </div>
