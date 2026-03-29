@@ -63,7 +63,7 @@ export default function StudyPlan() {
       const unresolvedMistakes = mistakes.filter(m => !m.isResolved);
       const mistakeTopics = unresolvedMistakes.map(m => `${m.subject}: ${m.topic}`).join(', ');
       
-      const prompt = `Sen bir LGS Koçusun. Öğrencinin adı ${profile.name}, hedefi ${profile.targetScore} puan. Zayıf olduğu dersler: ${profile.weakSubjects.join(', ')}. Çözemediği yanlış soru konuları: ${mistakeTopics || 'Yok'}.
+      const prompt = `Sen bir LGS Koçusun. Öğrencinin adı ${profile.displayName}, hedefi ${profile.targetScore} puan. Zayıf olduğu dersler: ${profile.weakSubjects.join(', ')}. Çözemediği yanlış soru konuları: ${mistakeTopics || 'Yok'}.
       
 Bu öğrenci için bugünden başlayarak önümüzdeki 7 gün için günlük bir çalışma planı oluştur. Her gün için 2-3 görev olsun. Görevler zayıf derslere ve yanlış yapılan konulara odaklansın.
 

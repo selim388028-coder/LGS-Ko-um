@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   CalendarDays, 
@@ -15,7 +15,8 @@ import {
   User,
   Sparkles,
   ShieldCheck,
-  MessageSquare
+  MessageSquare,
+  Lock
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import Logo from './Logo';
@@ -46,6 +47,7 @@ export default function Layout() {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const { profile, user } = useAuth();
   const { hasNewExamResult } = useAppContext();
+  const navigate = useNavigate();
 
   const isAdmin = profile?.role === 'admin' || 
                   profile?.email?.toLowerCase() === 'selim388028@gmail.com' ||
@@ -53,9 +55,15 @@ export default function Layout() {
 
   const filteredNavigation = navigation.filter(item => {
     if (item.adminOnly && !isAdmin) return false;
-    if (item.premiumOnly && !profile?.isPremium && !isAdmin) return false;
     return true;
   });
+
+  const handleNavClick = (e: React.MouseEvent, item: typeof navigation[0]) => {
+    if (item.premiumOnly && !profile?.isPremium && !isAdmin) {
+      e.preventDefault();
+      navigate('/payment');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -74,11 +82,14 @@ export default function Layout() {
               <NavLink
                 key={item.name}
                 to={item.href}
-                onClick={() => setSidebarOpen(false)}
+                onClick={(e) => {
+                  handleNavClick(e, item);
+                  if (!item.premiumOnly || profile?.isPremium || isAdmin) setSidebarOpen(false);
+                }}
                 className={({ isActive }) =>
                   cn(
                     "flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors",
-                    isActive
+                    isActive && (!item.premiumOnly || profile?.isPremium || isAdmin)
                       ? "bg-indigo-50 text-indigo-600"
                       : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
                   )
@@ -86,6 +97,7 @@ export default function Layout() {
               >
                 <item.icon className="w-5 h-5 mr-3 flex-shrink-0" />
                 {item.name}
+                {item.premiumOnly && !profile?.isPremium && !isAdmin && <Lock className="w-4 h-4 ml-auto text-slate-400" />}
                 {item.name === 'Deneme Takibi' && hasNewExamResult && (
                   <span className="ml-auto w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                 )}
@@ -129,10 +141,11 @@ export default function Layout() {
             <NavLink
               key={item.name}
               to={item.href}
+              onClick={(e) => handleNavClick(e, item)}
               className={({ isActive }) =>
                 cn(
                   "flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200",
-                  isActive
+                  isActive && (!item.premiumOnly || profile?.isPremium || isAdmin)
                     ? "bg-indigo-50 text-indigo-700 shadow-sm"
                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 )
@@ -140,6 +153,7 @@ export default function Layout() {
             >
               <item.icon className={cn("w-5 h-5 mr-3 flex-shrink-0", "opacity-80")} />
               {item.name}
+              {item.premiumOnly && !profile?.isPremium && !isAdmin && <Lock className="w-4 h-4 ml-auto text-slate-400" />}
               {item.name === 'Deneme Takibi' && hasNewExamResult && (
                 <span className="ml-auto w-2 h-2 rounded-full bg-red-500 animate-pulse" />
               )}
@@ -166,6 +180,7 @@ export default function Layout() {
           </div>
         )}
       </div>
+
 
       {/* Main content */}
       <div className="flex-1 flex flex-col lg:pl-64">

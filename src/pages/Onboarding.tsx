@@ -27,7 +27,7 @@ export default function Onboarding() {
   const handleBack = () => setStep(s => s - 1);
 
   const handleSubmit = () => {
-    if (formData.name && formData.targetHighSchool && formData.targetScore) {
+    if (formData.displayName && formData.targetHighSchool && formData.targetScore) {
       const profile = formData as UserProfile;
       setProfile(profile);
       generateStudyPlan(profile);
@@ -66,8 +66,8 @@ export default function Onboarding() {
               <input 
                 type="text" 
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-                value={formData.name || ''}
-                onChange={e => setFormData({...formData, name: e.target.value})}
+                value={formData.displayName || ''}
+                onChange={e => setFormData({...formData, displayName: e.target.value})}
                 placeholder="Örn: Ahmet"
               />
             </div>
@@ -93,7 +93,7 @@ export default function Onboarding() {
             </div>
             <button 
               onClick={handleNext}
-              disabled={!formData.name || !formData.targetHighSchool || !formData.targetScore}
+              disabled={!formData.displayName || !formData.targetHighSchool || !formData.targetScore}
               className="w-full py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors mt-6"
             >
               İleri

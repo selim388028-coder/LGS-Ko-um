@@ -93,6 +93,7 @@ export default function Mistakes() {
   }
 
   const unresolvedMistakes = mistakes.filter(m => !m.isResolved);
+  const resolvedMistakes = mistakes.filter(m => m.isResolved);
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">

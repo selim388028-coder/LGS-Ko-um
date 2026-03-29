@@ -13,7 +13,8 @@ import {
   FileText, 
   ChevronRight, 
   ShieldCheck,
-  MessageSquare 
+  MessageSquare,
+  Lock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ResponsiveContainer, LineChart, Line, Tooltip } from 'recharts';
@@ -183,18 +184,29 @@ export default function Dashboard() {
           { name: 'Canlı Çözüm', icon: Sparkles, href: '/ai-solver', color: 'bg-amber-50 text-amber-600', hover: 'hover:bg-amber-100', premiumOnly: true },
           { name: 'Yazılı Hazırlık', icon: FileText, href: '/school-exams', color: 'bg-emerald-50 text-emerald-600', hover: 'hover:bg-emerald-100', premiumOnly: true },
           { name: 'Mini Özetler', icon: BookOpen, href: '/summaries', color: 'bg-blue-50 text-blue-600', hover: 'hover:bg-blue-100', premiumOnly: true },
-        ].filter(item => !item.premiumOnly || profile?.isPremium || isAdmin).map((item) => (
+        ].map((item) => (
           <button
             key={item.name}
-            onClick={() => navigate(item.href)}
+            onClick={() => {
+              if (item.premiumOnly && !profile?.isPremium && !isAdmin) {
+                navigate('/payment');
+              } else {
+                navigate(item.href);
+              }
+            }}
             className={cn(
-              "flex flex-col items-center justify-center p-4 rounded-2xl border border-transparent transition-all hover:shadow-md",
+              "relative flex flex-col items-center justify-center p-4 rounded-2xl border border-transparent transition-all hover:shadow-md",
               item.color,
               item.hover
             )}
           >
             <item.icon className="w-6 h-6 mb-2" />
             <span className="text-xs font-bold uppercase tracking-wider">{item.name}</span>
+            {item.premiumOnly && !profile?.isPremium && !isAdmin && (
+              <div className="absolute top-2 right-2">
+                <Lock className="w-4 h-4 text-slate-400" />
+              </div>
+            )}
           </button>
         ))}
       </div>

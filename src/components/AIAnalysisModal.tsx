@@ -34,7 +34,7 @@ export default function AIAnalysisModal({ exam, onClose }: Props) {
       const initChat = async () => {
         try {
           const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-          const systemInstruction = `Sen LGS'ye hazırlanan öğrencilere rehberlik eden, motive edici ve uzman bir "LGS Koçu" yapay zekasın. Öğrencinin adı ${profile.name}, hedefi ${profile.targetHighSchool} (${profile.targetScore} puan). Öğrencinin deneme sonuçlarını analiz et, eksiklerini belirle, moral ver ve nokta atışı çalışma tavsiyeleri sun. Yanıtların samimi, cesaretlendirici ve Markdown formatında olsun. Çok uzun paragraflar yerine maddeler halinde okunması kolay cevaplar ver.`;
+          const systemInstruction = `Sen LGS'ye hazırlanan öğrencilere rehberlik eden, motive edici ve uzman bir "LGS Koçu" yapay zekasın. Öğrencinin adı ${profile.displayName}, hedefi ${profile.targetHighSchool} (${profile.targetScore} puan). Öğrencinin deneme sonuçlarını analiz et, eksiklerini belirle, moral ver ve nokta atışı çalışma tavsiyeleri sun. Yanıtların samimi, cesaretlendirici ve Markdown formatında olsun. Çok uzun paragraflar yerine maddeler halinde okunması kolay cevaplar ver.`;
           
           chatRef.current = ai.chats.create({
             model: 'gemini-3-flash-preview',

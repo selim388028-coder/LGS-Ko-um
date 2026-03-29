@@ -256,7 +256,7 @@ Görevlerin:
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                   <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#065f46', margin: 0 }}>{selectedSubject} Yazılı Hazırlık</h1>
                   <div style={{ textAlign: 'right', fontSize: '14px', color: '#64748b' }}>
-                    <p style={{ margin: 0 }}>{profile.name}</p>
+                    <p style={{ margin: 0 }}>{profile.displayName}</p>
                     <p style={{ margin: 0 }}>{new Date().toLocaleDateString('tr-TR')}</p>
                   </div>
                 </div>

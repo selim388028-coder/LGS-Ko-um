@@ -1,12 +1,22 @@
 export type Subject = "Türkçe" | "Matematik" | "Fen Bilimleri" | "T.C. İnkılap Tarihi ve Atatürkçülük" | "Din Kültürü ve Ahlak Bilgisi" | "Yabancı Dil";
 
 export interface UserProfile {
-  name: string;
-  targetHighSchool: string;
-  targetScore: number;
-  currentLevel: "Başlangıç" | "Orta" | "İleri";
-  weakSubjects: Subject[];
+  uid: string;
+  email: string;
+  displayName: string;
+  targetHighSchool?: string;
+  targetScore?: number;
+  currentLevel?: "Başlangıç" | "Orta" | "İleri";
+  weakSubjects?: Subject[];
+  dailyGoal?: number;
   isPremium?: boolean;
+  premiumExpiry?: string;
+  planName?: string;
+  isEmailVerified?: boolean;
+  role?: 'admin' | 'user';
+  verificationCode?: string;
+  verificationCodeExpires?: string;
+  createdAt: string;
 }
 
 export interface MockExam {

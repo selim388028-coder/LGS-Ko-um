@@ -5,25 +5,9 @@ import {
   signOut 
 } from 'firebase/auth';
 import { doc, getDoc, onSnapshot, updateDoc, setDoc } from 'firebase/firestore';
+import { UserProfile } from '../types';
 import { auth, db } from '../firebase';
-
 import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
-
-interface UserProfile {
-  uid: string;
-  email: string;
-  displayName: string;
-  targetHighSchool?: string;
-  dailyGoal?: number;
-  isPremium?: boolean;
-  premiumExpiry?: string;
-  planName?: string;
-  isEmailVerified?: boolean;
-  role?: 'admin' | 'user';
-  verificationCode?: string;
-  verificationCodeExpires?: string;
-  createdAt: string;
-}
 
 interface AuthContextType {
   user: User | null;
