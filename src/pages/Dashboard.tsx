@@ -67,12 +67,12 @@ export default function Dashboard() {
             </div>
             <h2 className="text-xl md:text-2xl font-black">Türkiye Geneli LGS 2026 Prova Denemesi</h2>
             <p className="text-indigo-100 text-sm md:text-base max-w-xl">
-              4 Nisan'da tüm Türkiye ile aynı anda prova denemesine katıl, eksiklerini gör ve sıralamanı öğren!
+              Tüm Türkiye ile aynı anda prova denemesine katıl, eksiklerini gör ve sıralamanı öğren!
             </p>
           </div>
           <div className="flex flex-col items-center justify-center bg-white/10 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/20 min-w-[140px]">
-            <span className="text-3xl font-black">04</span>
-            <span className="text-xs font-bold uppercase tracking-widest opacity-80">Nisan 2026</span>
+            <span className="text-xl font-black text-center">Devam Ediyor</span>
+            <span className="text-xs font-bold uppercase tracking-widest opacity-80 mt-1">7 Nisan'a Kadar</span>
           </div>
         </div>
       </motion.div>

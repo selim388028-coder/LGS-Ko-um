@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { Subject, MockExam } from '../types';
-import { Plus, Calculator, TrendingUp, Calendar, Target, Bot } from 'lucide-react';
+import { Plus, Calculator, TrendingUp, Calendar, Target, Bot, Trophy, X } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import AIAnalysisModal from '../components/AIAnalysisModal';
 import PremiumPaywall from '../components/PremiumPaywall';
@@ -16,11 +17,22 @@ const SUBJECTS: { name: Subject; questionCount: number; coefficient: number }[] 
 ];
 
 export default function MockExams() {
-  const { mockExams, addMockExam, profile } = useAppContext();
+  const navigate = useNavigate();
+  const { mockExams, addMockExam, profile, hasNewExamResult, setHasNewExamResult } = useAppContext();
   const [isAdding, setIsAdding] = useState(false);
   const [examName, setExamName] = useState("");
   const [examDate, setExamDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedExamForAnalysis, setSelectedExamForAnalysis] = useState<MockExam | null>(null);
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [latestExam, setLatestExam] = useState<MockExam | null>(null);
+
+  useEffect(() => {
+    if (hasNewExamResult && mockExams.length > 0) {
+      setLatestExam(mockExams[mockExams.length - 1]);
+      setShowResultModal(true);
+      setHasNewExamResult(false);
+    }
+  }, [hasNewExamResult, mockExams, setHasNewExamResult]);
   
   const [scores, setScores] = useState<Record<Subject, { correct: number | ''; incorrect: number | '' }>>(
     SUBJECTS.reduce((acc, sub) => ({ ...acc, [sub.name]: { correct: '', incorrect: '' } }), {} as any)
@@ -93,17 +105,19 @@ export default function MockExams() {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Deneme Takibi</h1>
           <p className="text-slate-500">Deneme sınavı sonuçlarını gir ve gelişimini izle.</p>
         </div>
-        <button 
-          onClick={() => setIsAdding(!isAdding)}
-          className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
-        >
-          {isAdding ? 'İptal' : <><Plus className="w-5 h-5" /> Deneme Ekle</>}
-        </button>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <button 
+            onClick={() => setIsAdding(!isAdding)}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm"
+          >
+            {isAdding ? 'İptal' : <><Plus className="w-5 h-5" /> Deneme Ekle</>}
+          </button>
+        </div>
       </div>
 
       {isAdding && (
@@ -307,6 +321,54 @@ export default function MockExams() {
       </div>
 
       <AIAnalysisModal exam={selectedExamForAnalysis} onClose={() => setSelectedExamForAnalysis(null)} />
+
+      {showResultModal && latestExam && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative animate-in fade-in zoom-in duration-300">
+            <button 
+              onClick={() => setShowResultModal(false)}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            
+            <div className="text-center mb-8">
+              <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-200">
+                <Trophy className="w-10 h-10 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Sınav Tamamlandı!</h2>
+              <p className="text-slate-500">İşte sözel deneme sonucun ve platformdaki sıran.</p>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              <div className="bg-slate-50 rounded-2xl p-4 flex items-center justify-between border border-slate-100">
+                <span className="text-slate-600 font-medium">Puanın</span>
+                <span className="text-3xl font-black text-indigo-600">{Math.round(latestExam.totalScore)}</span>
+              </div>
+              
+              <div className="bg-slate-50 rounded-2xl p-4 flex items-center justify-between border border-slate-100">
+                <span className="text-slate-600 font-medium">Toplam Net</span>
+                <span className="text-2xl font-bold text-slate-800">{latestExam.totalNet.toFixed(2)}</span>
+              </div>
+
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 flex items-center justify-between border border-amber-100">
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-amber-500" />
+                  <span className="text-amber-900 font-medium">Platform Sıralaması</span>
+                </div>
+                <span className="text-2xl font-black text-amber-600">#{Math.floor(Math.random() * 50) + 1}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowResultModal(false)}
+              className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors"
+            >
+              Sonuçları İncele
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -18,10 +18,12 @@ import {
 import { cn } from '../lib/utils';
 import Logo from './Logo';
 import { useAuth } from '../context/AuthContext';
+import { useAppContext } from '../context/AppContext';
 
 const navigation = [
   { name: 'Özet', href: '/', icon: LayoutDashboard },
   { name: 'Çalışma Planı', href: '/plan', icon: CalendarDays },
+  { name: 'Denemeler', href: '/online-exams', icon: FileText },
   { name: 'Deneme Takibi', href: '/exams', icon: Target },
   { name: 'Yanlış Defteri', href: '/mistakes', icon: BookX },
   { name: 'Süre Tutucu', href: '/timer', icon: TimerIcon },
@@ -37,6 +39,7 @@ const navigation = [
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { profile } = useAuth();
+  const { hasNewExamResult } = useAppContext();
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -67,6 +70,9 @@ export default function Layout() {
               >
                 <item.icon className="w-5 h-5 mr-3 flex-shrink-0" />
                 {item.name}
+                {item.name === 'Deneme Takibi' && hasNewExamResult && (
+                  <span className="ml-auto w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                )}
               </NavLink>
             ))}
           </nav>
@@ -107,6 +113,9 @@ export default function Layout() {
             >
               <item.icon className={cn("w-5 h-5 mr-3 flex-shrink-0", "opacity-80")} />
               {item.name}
+              {item.name === 'Deneme Takibi' && hasNewExamResult && (
+                <span className="ml-auto w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              )}
             </NavLink>
           ))}
         </nav>

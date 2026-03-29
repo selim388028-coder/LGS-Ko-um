@@ -13,7 +13,7 @@ export default function AISolver() {
   const [error, setError] = useState<string | null>(null);
   const [isMicOn, setIsMicOn] = useState(true);
   const [inputMode, setInputMode] = useState<'screen' | 'camera'>('screen');
-  const [messages, setMessages] = useState<{ role: 'user' | 'model', text: string }[]>([]);
+  const [subtitles, setSubtitles] = useState('');
   
   const sessionRef = useRef<any>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -42,14 +42,14 @@ export default function AISolver() {
     }
     setIsActive(false);
     setIsConnecting(false);
-    setMessages([]);
+    setSubtitles('');
   };
 
   const startSession = async (mode: 'screen' | 'camera') => {
     setIsConnecting(true);
     setError(null);
     setInputMode(mode);
-    setMessages([]);
+    setSubtitles('');
     
     try {
       if (!window.isSecureContext) {
@@ -92,6 +92,7 @@ export default function AISolver() {
 
       // 3. Setup Audio Context for playback
       const audioCtx = new AudioContext({ sampleRate: 24000 });
+      await audioCtx.resume();
       audioContextRef.current = audioCtx;
       nextPlayTimeRef.current = audioCtx.currentTime;
 
@@ -101,10 +102,10 @@ export default function AISolver() {
         model: "gemini-3.1-flash-live-preview",
         config: {
           responseModalities: [Modality.AUDIO],
-          systemInstruction: `Sen bir LGS koçusun. Öğrencinin paylaştığı ${mode === 'screen' ? 'ekrandaki' : 'kameradaki'} soruları görmene ve sesini duymana izin verildi. Soruları adım adım çözmesine yardımcı ol, ipuçları ver ama hemen cevabı söyleme. Motivasyonel ve destekleyici bir dil kullan.`,
           speechConfig: {
-            voiceConfig: { prebuiltVoiceConfig: { voiceName: "Zephyr" } }
-          }
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: "Zephyr" } },
+          },
+          systemInstruction: `Sen bir LGS koçusun. Öğrencinin paylaştığı ${mode === 'screen' ? 'ekrandaki' : 'kameradaki'} soruları görmene izin verildi. Soruları adım adım çözmesine yardımcı ol, ipuçları ver ama hemen cevabı söyleme. Motivasyonel ve destekleyici bir dil kullan. Yanıtlarını sadece sesli olarak ver.`,
         },
         callbacks: {
           onopen: () => {
@@ -119,20 +120,21 @@ export default function AISolver() {
           },
           onmessage: async (message) => {
             const parts = message.serverContent?.modelTurn?.parts;
-            if (!parts) return;
-            
-            for (const part of parts) {
-              if (part.inlineData?.data) {
-                playAudioChunk(part.inlineData.data);
-              }
-              if (part.text) {
-                setMessages(prev => [...prev, { role: 'model', text: part.text! }]);
+            if (parts) {
+              for (const part of parts) {
+                if (part.inlineData && part.inlineData.data) {
+                  playAudioChunk(part.inlineData.data);
+                }
+                if (part.text) {
+                  setSubtitles(prev => prev + part.text);
+                }
               }
             }
             
             if (message.serverContent?.interrupted) {
               // Stop current playback if interrupted
               nextPlayTimeRef.current = audioContextRef.current?.currentTime || 0;
+              setSubtitles('');
             }
           },
           onclose: () => stopSession(),
@@ -187,7 +189,10 @@ export default function AISolver() {
     const processor = audioCtx.createScriptProcessor(4096, 1, 1);
 
     source.connect(processor);
-    processor.connect(audioCtx.destination);
+    const gainNode = audioCtx.createGain();
+    gainNode.gain.value = 0;
+    processor.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
 
     processor.onaudioprocess = (e) => {
       if (!sessionRef.current || !isActive || !isMicOn) return;
@@ -199,7 +204,13 @@ export default function AISolver() {
         pcmData[i] = Math.max(-1, Math.min(1, inputData[i])) * 0x7FFF;
       }
       
-      const base64Audio = btoa(String.fromCharCode(...new Uint8Array(pcmData.buffer)));
+      const bytes = new Uint8Array(pcmData.buffer);
+      let binary = '';
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const base64Audio = btoa(binary);
+      
       session.sendRealtimeInput({
         audio: { data: base64Audio, mimeType: 'audio/pcm;rate=16000' }
       });
@@ -208,7 +219,8 @@ export default function AISolver() {
 
   const playAudioChunk = (base64Data: string) => {
     if (!audioContextRef.current) return;
-    console.log("Playing audio chunk...");
+    console.log("playAudioChunk called, base64 length:", base64Data.length);
+    console.log("AudioContext state:", audioContextRef.current.state);
 
     if (audioContextRef.current.state === 'suspended') {
       audioContextRef.current.resume();
@@ -221,7 +233,8 @@ export default function AISolver() {
     }
     
     // PCM 16bit is 2 bytes per sample
-    const pcmData = new Int16Array(bytes.buffer);
+    const validLength = bytes.length % 2 === 0 ? bytes.length : bytes.length - 1;
+    const pcmData = new Int16Array(bytes.buffer, 0, validLength / 2);
     const floatData = new Float32Array(pcmData.length);
     for (let i = 0; i < pcmData.length; i++) {
       floatData[i] = pcmData[i] / 0x7FFF;
@@ -229,14 +242,17 @@ export default function AISolver() {
 
     const buffer = audioContextRef.current.createBuffer(1, floatData.length, 24000);
     buffer.getChannelData(0).set(floatData);
+    console.log("Audio buffer created, duration:", buffer.duration);
 
     const source = audioContextRef.current.createBufferSource();
     source.buffer = buffer;
     source.connect(audioContextRef.current.destination);
 
     const startTime = Math.max(audioContextRef.current.currentTime, nextPlayTimeRef.current);
+    console.log("Playing audio at:", startTime);
     source.start(startTime);
     nextPlayTimeRef.current = startTime + buffer.duration;
+    console.log("Audio source connected and started.");
   };
 
   useEffect(() => {
@@ -353,24 +369,22 @@ export default function AISolver() {
                     ? 'Ekranını İnceliyorum...' 
                     : 'Sorunu Görüyorum...'}
                 </h2>
-                <p className="text-sm sm:text-base text-slate-500 italic px-6">
-                  {inputMode === 'screen' 
-                    ? '"Şu an ekranını görebiliyorum, hangi soruda takıldın?"' 
-                    : '"Soruyu net görebiliyorum, haydi birlikte çözelim!"'}
-                </p>
+                <div className="min-h-[60px] px-6 flex items-center justify-center">
+                  {subtitles ? (
+                    <p className="text-sm sm:text-base text-slate-700 font-medium bg-slate-100 p-4 rounded-xl inline-block max-w-2xl">
+                      {subtitles}
+                    </p>
+                  ) : (
+                    <p className="text-sm sm:text-base text-slate-500 italic">
+                      {inputMode === 'screen' 
+                        ? '"Şu an ekranını görebiliyorum, hangi soruda takıldın?"' 
+                        : '"Soruyu net görebiliyorum, haydi birlikte çözelim!"'}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              {/* Chat Messages */}
-              {messages.length > 0 && (
-                <div className="w-full max-w-lg mx-auto bg-slate-50 rounded-2xl p-4 h-48 overflow-y-auto text-left text-sm space-y-2">
-                  {messages.map((msg, idx) => (
-                    <div key={idx} className={cn("p-2 rounded-lg", msg.role === 'model' ? "bg-white border border-slate-200" : "bg-indigo-100 ml-auto w-fit")}>
-                      {msg.text}
-                    </div>
-                  ))}
-                </div>
-              )}
-
+              {/* Controls */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 px-4">
                 <button
                   onClick={() => setIsMicOn(!isMicOn)}

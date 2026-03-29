@@ -209,9 +209,11 @@ Görevlerin:
 
             <button 
               onClick={startExamPrep}
-              className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold text-lg hover:bg-emerald-700 transition-colors shadow-sm flex items-center justify-center gap-2"
+              disabled={isLoading}
+              className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold text-lg hover:bg-emerald-700 transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              <Sparkles className="w-5 h-5" /> MEB 2026 Senaryolarına Göre Hazırla
+              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />} 
+              MEB 2026 Senaryolarına Göre Hazırla
             </button>
           </div>
         </div>
@@ -237,7 +239,9 @@ Görevlerin:
                 <Download className="w-4 h-4" /> PDF İndir
               </button>
               <button 
-                onClick={() => setIsChatActive(false)}
+                onClick={() => {
+                  setIsChatActive(false);
+                }}
                 className="text-sm text-slate-500 hover:text-slate-800 font-medium"
               >
                 Başka Sınav Seç
@@ -288,7 +292,7 @@ Görevlerin:
                 </div>
                 <div className={`max-w-[85%] rounded-2xl px-5 py-4 ${msg.role === 'user' ? 'bg-emerald-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-700 rounded-tl-none shadow-sm'}`}>
                   {msg.role === 'user' ? (
-                    <p>{msg.text}</p>
+                    <p className="whitespace-pre-wrap">{msg.text}</p>
                   ) : (
                     <div className="markdown-body text-sm">
                       <ReactMarkdown>{msg.text}</ReactMarkdown>

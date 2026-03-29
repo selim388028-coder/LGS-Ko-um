@@ -12,6 +12,8 @@ interface AppContextType extends AppState {
   generateStudyPlan: (profile: UserProfile) => void;
   addPastQuestion: (question: PastQuestion) => void;
   upgradeToPremium: () => void;
+  hasNewExamResult: boolean;
+  setHasNewExamResult: (val: boolean) => void;
 }
 
 const defaultState: AppState = {
@@ -29,6 +31,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const saved = localStorage.getItem("lgs-kocum-state");
     return saved ? JSON.parse(saved) : defaultState;
   });
+  const [hasNewExamResult, setHasNewExamResult] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("lgs-kocum-state", JSON.stringify(state));
@@ -109,6 +112,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         generateStudyPlan,
         addPastQuestion,
         upgradeToPremium,
+        hasNewExamResult,
+        setHasNewExamResult,
       }}
     >
       {children}

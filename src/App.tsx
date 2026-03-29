@@ -6,6 +6,7 @@ import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import StudyPlan from './pages/StudyPlan';
 import MockExams from './pages/MockExams';
+import OnlineExams from './pages/OnlineExams';
 import Mistakes from './pages/Mistakes';
 import Timer from './pages/Timer';
 import Motivation from './pages/Motivation';
@@ -14,6 +15,7 @@ import MiniSummaries from './pages/MiniSummaries';
 import AICoach from './pages/AICoach';
 import AISolver from './pages/AISolver';
 import SchoolExams from './pages/SchoolExams';
+import TakeExam from './pages/TakeExam';
 import Payment from './pages/Payment';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -58,6 +60,7 @@ function AppRoutes() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/plan" element={<StudyPlan />} />
           <Route path="/exams" element={<MockExams />} />
+          <Route path="/online-exams" element={<OnlineExams />} />
           <Route path="/mistakes" element={<Mistakes />} />
           <Route path="/timer" element={<Timer />} />
           <Route path="/motivation" element={<Motivation />} />
@@ -66,6 +69,7 @@ function AppRoutes() {
           <Route path="/ai-coach" element={<AICoach />} />
           <Route path="/ai-solver" element={<AISolver />} />
           <Route path="/school-exams" element={<SchoolExams />} />
+          <Route path="/take-exam" element={<TakeExam />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
         <Route path="/payment" element={<Payment />} />

@@ -28,9 +28,12 @@ export default function Logo({ className = "", size = 'md', showText = true }: L
         </svg>
       </div>
       {showText && (
-        <span className={`${sizes[size].text} font-bold tracking-tight text-slate-900`}>
-          LGS <span className="text-indigo-600">Koçum</span>
-        </span>
+        <div className="flex flex-col">
+          <span className={`${sizes[size].text} font-bold tracking-tight text-slate-900`}>
+            LGS <span className="text-indigo-600">Koçum</span>
+          </span>
+          <span className="text-base font-thin text-slate-500 tracking-wide">Başarıya giden yol.</span>
+        </div>
       )}
     </div>
   );
