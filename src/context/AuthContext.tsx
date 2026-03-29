@@ -4,7 +4,7 @@ import {
   User, 
   signOut 
 } from 'firebase/auth';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, updateDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
 import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
@@ -16,6 +16,8 @@ interface UserProfile {
   targetHighSchool?: string;
   dailyGoal?: number;
   isPremium?: boolean;
+  premiumExpiry?: string;
+  planName?: string;
   isEmailVerified?: boolean;
   role?: 'admin' | 'user';
   verificationCode?: string;
@@ -63,18 +65,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     
     const path = `users/${user.uid}`;
-    const unsubscribe = onSnapshot(doc(db, 'users', user.uid), (doc) => {
-      console.log(`[AuthContext] Profile snapshot alındı: ${doc.exists() ? 'mevcut' : 'yok'}`);
-      if (doc.exists()) {
-        setProfile(doc.data() as UserProfile);
+    const unsubscribe = onSnapshot(doc(db, 'users', user.uid), async (docSnap) => {
+      console.log(`[AuthContext] Profile snapshot alındı: ${docSnap.exists() ? 'mevcut' : 'yok'}`);
+      if (docSnap.exists()) {
+        const data = docSnap.data() as UserProfile;
+        
+        // Check if premium has expired
+        if (data.isPremium && data.premiumExpiry) {
+          const expiry = new Date(data.premiumExpiry);
+          if (expiry < new Date()) {
+            console.log(`[AuthContext] Premium süresi dolmuş, güncelleniyor...`);
+            updateDoc(docSnap.ref, { isPremium: false });
+            data.isPremium = false;
+          }
+        }
+        
+        setProfile(data);
+        setLoading(false);
+        setIsAuthReady(true);
+      } else {
+        // Auto-repair: Create profile if it doesn't exist
+        console.log(`[AuthContext] Profil bulunamadı, oluşturuluyor...`);
+        try {
+          const newProfile: UserProfile = {
+            uid: user.uid,
+            email: user.email || '',
+            displayName: user.displayName || user.email?.split('@')[0] || 'Kullanıcı',
+            targetHighSchool: 'Belirlenmedi',
+            dailyGoal: 50,
+            isPremium: false,
+            isEmailVerified: true,
+            role: user.email?.toLowerCase() === 'selim388028@gmail.com' ? 'admin' : 'user',
+            createdAt: new Date().toISOString()
+          };
+          await setDoc(doc(db, 'users', user.uid), newProfile);
+          // Snapshot will trigger again
+        } catch (err) {
+          console.error(`[AuthContext] Profil oluşturma hatası: ${err}`);
+          setLoading(false);
+          setIsAuthReady(true);
+        }
       }
-      setLoading(false);
-      setIsAuthReady(true);
     }, (error) => {
       console.error(`[AuthContext] Profile snapshot hatası: ${error}`);
-      handleFirestoreError(error, OperationType.GET, path);
       setLoading(false);
       setIsAuthReady(true);
+      try {
+        handleFirestoreError(error, OperationType.GET, path);
+      } catch (e) {
+        // Silently catch the error thrown by handleFirestoreError to prevent app crash
+        console.error('Handled Firestore error in AuthContext:', e);
+      }
     });
 
     return () => unsubscribe();

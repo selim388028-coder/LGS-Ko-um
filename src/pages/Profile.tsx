@@ -3,15 +3,21 @@ import { useAuth } from '../context/AuthContext';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { motion } from 'motion/react';
-import { User, Target, Trophy, LogOut, CheckCircle2, Loader2, AlertCircle, Sparkles } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import { User, Target, Trophy, LogOut, CheckCircle2, Loader2, AlertCircle, Sparkles, ShieldCheck } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export default function Profile() {
-  const { user, profile, logout } = useAuth();
+  const { user, profile, logout, loading: authLoading } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showUnlockAll, setShowUnlockAll] = useState(false);
+
+  const isAdmin = profile?.role === 'admin' || 
+                  profile?.email?.toLowerCase() === 'selim388028@gmail.com' ||
+                  user?.email?.toLowerCase() === 'selim388028@gmail.com';
 
   const [formData, setFormData] = useState({
     displayName: '',
@@ -86,7 +92,29 @@ export default function Profile() {
     }
   };
 
-  if (!profile) return null;
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="max-w-md mx-auto mt-12 p-8 bg-white rounded-3xl border border-slate-100 shadow-sm text-center">
+        <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
+        <h2 className="text-xl font-bold text-slate-800 mb-2">Profil Bulunamadı</h2>
+        <p className="text-slate-500 mb-6">Hesap bilgilerine ulaşılamadı. Lütfen tekrar giriş yapmayı dene.</p>
+        <button 
+          onClick={() => logout()}
+          className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all"
+        >
+          Çıkış Yap
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -97,6 +125,12 @@ export default function Profile() {
         <div className="flex-1 text-center md:text-left space-y-2">
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
             <h1 className="text-3xl font-black text-slate-900">{profile.displayName}</h1>
+            {isAdmin && (
+              <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full uppercase tracking-wider flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3" />
+                Yönetici
+              </span>
+            )}
             {profile.isPremium && (
               <span className="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full uppercase tracking-wider flex items-center gap-1">
                 <Trophy className="w-3 h-3" />
@@ -117,6 +151,15 @@ export default function Profile() {
           </div>
         </div>
         <div className="flex flex-col gap-3">
+          {isAdmin && (
+            <NavLink 
+              to="/admin"
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+            >
+              <ShieldCheck className="w-5 h-5" />
+              Admin Paneli
+            </NavLink>
+          )}
           <button 
             onClick={handleTogglePremium}
             disabled={loading}

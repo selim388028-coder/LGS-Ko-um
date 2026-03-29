@@ -2,13 +2,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useAppContext } from '../context/AppContext';
-import { Target, TrendingUp, BookOpen, AlertCircle, CheckCircle2, Bot, Sparkles, FileText, ChevronRight } from 'lucide-react';
+import { Target, TrendingUp, BookOpen, AlertCircle, CheckCircle2, Bot, Sparkles, FileText, ChevronRight, ShieldCheck } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ResponsiveContainer, LineChart, Line, Tooltip } from 'recharts';
 import { cn } from '../lib/utils';
 
 export default function Dashboard() {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const { mockExams, studyPlan, mistakes, toggleTaskCompleted } = useAppContext();
   const navigate = useNavigate();
 
@@ -23,9 +23,35 @@ export default function Dashboard() {
   })).slice(-5); // Son 5 deneme
 
   const unresolvedMistakes = mistakes.filter(m => !m.isResolved).length;
+  const isAdmin = profile?.role === 'admin' || 
+                  profile?.email?.toLowerCase() === 'selim388028@gmail.com' ||
+                  user?.email?.toLowerCase() === 'selim388028@gmail.com';
 
   return (
     <div className="space-y-6">
+      {isAdmin && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-indigo-900">Yönetici Erişimi Aktif</p>
+              <p className="text-xs text-indigo-600">Ödeme bildirimlerini ve kullanıcıları yönetebilirsiniz.</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => navigate('/admin')}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-sm hover:bg-indigo-700 transition-all"
+          >
+            Admin Paneline Git
+          </button>
+        </motion.div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">

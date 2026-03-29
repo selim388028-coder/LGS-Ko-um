@@ -96,6 +96,7 @@ export default function Payment() {
         senderName,
         paymentDate,
         amount: IBAN_DETAILS.price,
+        planName: "Kazananlar Planı",
         status: 'pending',
         createdAt: serverTimestamp()
       });

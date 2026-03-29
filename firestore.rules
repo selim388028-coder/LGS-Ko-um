@@ -46,7 +46,7 @@ service cloud.firestore {
 
     function isAdmin() {
       return isAuthenticated() &&
-        (request.auth.token.email == "selim388028@gmail.com" ||
+        (request.auth.token.email.lower() == "selim388028@gmail.com" ||
          (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'));
     }
@@ -83,6 +83,9 @@ service cloud.firestore {
              (!('targetHighSchool' in data) || (data.targetHighSchool is string && data.targetHighSchool.size() < 100)) &&
              (!('dailyGoal' in data) || (data.dailyGoal is number && data.dailyGoal >= 0)) &&
              (!('isPremium' in data) || (data.isPremium is bool)) &&
+             (!('premiumExpiry' in data) || (data.premiumExpiry == null || isValidDateString(data.premiumExpiry))) &&
+             (!('planName' in data) || (data.planName is string)) &&
+             (!('role' in data) || (data.role in ['admin', 'user'])) &&
              (!('verificationCode' in data) || (data.verificationCode == null || (data.verificationCode is string && data.verificationCode.size() == 6))) &&
              (!('verificationCodeExpires' in data) || (data.verificationCodeExpires == null || isValidDateString(data.verificationCodeExpires)));
     }
@@ -108,10 +111,17 @@ service cloud.firestore {
       allow create: if isOwner(userId) && isValidUser(request.resource.data) && 
                       (!('role' in request.resource.data) || 
                        request.resource.data.role == 'user' || 
-                       (request.resource.data.role == 'admin' && request.auth.token.email == "selim388028@gmail.com"));
+                       (request.resource.data.role == 'admin' && request.auth.token.email.lower() == "selim388028@gmail.com"));
       
-      allow update: if (isOwner(userId) && isValidUser(request.resource.data) && 
-                      (!('role' in resource.data) || !('role' in request.resource.data) || request.resource.data.role == resource.data.role)) || isAdmin();
+      allow update: if isAdmin() || (
+        isOwner(userId) && 
+        isValidUser(request.resource.data) && 
+        // Prevent self-promotion or status changes
+        (!('role' in request.resource.data) || request.resource.data.role == resource.data.role) &&
+        (!('isPremium' in request.resource.data) || request.resource.data.isPremium == resource.data.isPremium) &&
+        (!('premiumExpiry' in request.resource.data) || request.resource.data.premiumExpiry == resource.data.premiumExpiry) &&
+        (!('planName' in request.resource.data) || request.resource.data.planName == resource.data.planName)
+      );
       
       allow delete: if isAdmin();
     }

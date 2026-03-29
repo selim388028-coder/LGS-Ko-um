@@ -40,8 +40,12 @@ const navigation = [
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const { hasNewExamResult } = useAppContext();
+
+  const isAdmin = profile?.role === 'admin' || 
+                  profile?.email?.toLowerCase() === 'selim388028@gmail.com' ||
+                  user?.email?.toLowerCase() === 'selim388028@gmail.com';
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -56,7 +60,7 @@ export default function Layout() {
             </button>
           </div>
           <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-            {navigation.filter(item => !item.adminOnly || profile?.role === 'admin').map((item) => (
+            {navigation.filter(item => !item.adminOnly || isAdmin).map((item) => (
               <NavLink
                 key={item.name}
                 to={item.href}
@@ -100,7 +104,7 @@ export default function Layout() {
           <Logo size="sm" />
         </div>
         <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-          {navigation.filter(item => !item.adminOnly || profile?.role === 'admin').map((item) => (
+          {navigation.filter(item => !item.adminOnly || isAdmin).map((item) => (
             <NavLink
               key={item.name}
               to={item.href}

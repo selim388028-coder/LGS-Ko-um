@@ -65,7 +65,7 @@ export default function LGS2026() {
     });
 
     alert(`${mistakes.length} adet eksik konu için çalışma planına görevler eklendi!`);
-    navigate('/study-plan');
+    navigate('/plan');
   };
 
   if (!profile?.isPremium) {

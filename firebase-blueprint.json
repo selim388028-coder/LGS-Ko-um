@@ -11,7 +11,10 @@
         "targetHighSchool": { "type": "string", "description": "Target high school" },
         "dailyGoal": { "type": "number", "description": "Daily question goal" },
         "isPremium": { "type": "boolean", "description": "Premium status" },
+        "premiumExpiry": { "type": "string", "format": "date-time", "description": "Premium subscription expiration date" },
+        "planName": { "type": "string", "description": "Name of the current subscription plan" },
         "isEmailVerified": { "type": "boolean", "description": "Email verification status" },
+        "role": { "type": "string", "enum": ["admin", "user"], "description": "User role" },
         "verificationCode": { "type": "string", "description": "6-digit verification code" },
         "verificationCodeExpires": { "type": "string", "format": "date-time", "description": "Verification code expiration" },
         "createdAt": { "type": "string", "format": "date-time", "description": "Profile creation timestamp" }

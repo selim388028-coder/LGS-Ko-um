@@ -117,7 +117,7 @@ export default function MockExams() {
         <div className="flex items-center gap-3 w-full sm:w-auto">
           {pendingExamPart && (
             <button 
-              onClick={() => navigate('/exams/take/sayisal')}
+              onClick={() => navigate('/take-exam/sayisal')}
               className="bg-amber-100 border border-amber-200 px-4 py-2 rounded-lg flex items-center gap-2 text-amber-800 text-sm font-bold hover:bg-amber-200 transition-colors animate-pulse"
             >
               <Calculator className="w-4 h-4" />
