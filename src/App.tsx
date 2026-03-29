@@ -8,7 +8,6 @@ import StudyPlan from './pages/StudyPlan';
 import MockExams from './pages/MockExams';
 import OnlineExams from './pages/OnlineExams';
 import Mistakes from './pages/Mistakes';
-import Timer from './pages/Timer';
 import Motivation from './pages/Motivation';
 import LGS2026 from './pages/LGS2026';
 import MiniSummaries from './pages/MiniSummaries';
@@ -82,7 +81,6 @@ function AppRoutes() {
           <Route path="/exams" element={<MockExams />} />
           <Route path="/online-exams" element={<OnlineExams />} />
           <Route path="/mistakes" element={<Mistakes />} />
-          <Route path="/timer" element={<Timer />} />
           <Route path="/motivation" element={<Motivation />} />
           <Route path="/lgs-2026" element={<LGS2026 />} />
           <Route path="/summaries" element={<MiniSummaries />} />

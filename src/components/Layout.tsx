@@ -31,7 +31,6 @@ const navigation = [
   { name: 'Denemeler', href: '/online-exams', icon: FileText },
   { name: 'Deneme Takibi', href: '/exams', icon: Target },
   { name: 'Yanlış Defteri', href: '/mistakes', icon: BookX, premiumOnly: true },
-  { name: 'Süre Tutucu', href: '/timer', icon: TimerIcon },
   { name: 'LGS 2026', href: '/lgs-2026', icon: Target, premiumOnly: true },
   { name: 'Mini Özetler', href: '/summaries', icon: BookOpen, premiumOnly: true },
   { name: 'Yazılı Hazırlık', href: '/school-exams', icon: FileText, premiumOnly: true },

@@ -51,7 +51,7 @@ export default function SchoolExams() {
 
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const systemInstruction = `Sen MEB 2026 müfredatına ve yayınlanan örnek yazılı senaryolarına tam hakim bir uzman öğretmensin. Öğrenci 8. sınıf LGS öğrencisi. Adı ${profile.name}.
+      const systemInstruction = `Sen MEB 2026 müfredatına ve yayınlanan örnek yazılı senaryolarına tam hakim bir uzman öğretmensin. Öğrenci 8. sınıf LGS öğrencisi. Adı ${profile.displayName}.
       
 Görevlerin:
 1. Öğrencinin seçtiği ders, dönem ve yazılıya göre MEB'in 2026 yılı için yayınladığı konu dağılım tablolarını (Senaryo 1, Senaryo 2 vb.) analiz et.
