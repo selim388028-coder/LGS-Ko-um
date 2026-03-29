@@ -14,12 +14,14 @@ import {
   X,
   User,
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  MessageSquare
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import Logo from './Logo';
 import { useAuth } from '../context/AuthContext';
 import { useAppContext } from '../context/AppContext';
+import FeedbackModal from './FeedbackModal';
 
 const navigation = [
   { name: 'Özet', href: '/', icon: LayoutDashboard },
@@ -40,6 +42,7 @@ const navigation = [
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const { profile, user } = useAuth();
   const { hasNewExamResult } = useAppContext();
 
@@ -81,6 +84,16 @@ export default function Layout() {
                 )}
               </NavLink>
             ))}
+            <button
+              onClick={() => {
+                setSidebarOpen(false);
+                setFeedbackOpen(true);
+              }}
+              className="flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+            >
+              <MessageSquare className="w-5 h-5 mr-3 flex-shrink-0" />
+              Geri Bildirim
+            </button>
           </nav>
           
           {!profile?.isPremium && (
@@ -124,6 +137,13 @@ export default function Layout() {
               )}
             </NavLink>
           ))}
+          <button
+            onClick={() => setFeedbackOpen(true)}
+            className="flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all duration-200"
+          >
+            <MessageSquare className="w-5 h-5 mr-3 flex-shrink-0 opacity-80" />
+            Geri Bildirim
+          </button>
         </nav>
 
         {!profile?.isPremium && (
@@ -156,6 +176,8 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
+
+      <FeedbackModal isOpen={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </div>
   );
 }

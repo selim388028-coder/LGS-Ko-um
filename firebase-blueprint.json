@@ -35,6 +35,22 @@
         "createdAt": { "type": "string", "format": "date-time", "description": "Notification creation timestamp" }
       },
       "required": ["userId", "userEmail", "senderName", "paymentDate", "amount", "status", "createdAt"]
+    },
+    "Feedback": {
+      "title": "Feedback",
+      "description": "User feedback and suggestions",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "User ID who sent the feedback" },
+        "userEmail": { "type": "string", "format": "email", "description": "User email" },
+        "userName": { "type": "string", "description": "User display name" },
+        "message": { "type": "string", "description": "Feedback message" },
+        "reply": { "type": "string", "description": "Admin reply" },
+        "status": { "type": "string", "enum": ["pending", "replied"], "description": "Status of the feedback" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Feedback creation timestamp" },
+        "repliedAt": { "type": "string", "format": "date-time", "description": "Reply timestamp" }
+      },
+      "required": ["userId", "userEmail", "userName", "message", "status", "createdAt"]
     }
   },
   "firestore": {
@@ -45,6 +61,10 @@
     "/payment_notifications/{notificationId}": {
       "schema": "PaymentNotification",
       "description": "Manual payment notifications"
+    },
+    "/feedbacks/{feedbackId}": {
+      "schema": "Feedback",
+      "description": "User feedback and suggestions"
     }
   }
 }

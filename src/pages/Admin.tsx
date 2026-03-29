@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { collection, query, where, onSnapshot, doc, updateDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
-import { CheckCircle2, XCircle, Clock, User, Mail, Calendar, CreditCard, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, User, Mail, Calendar, CreditCard, ShieldCheck, MessageSquare, Send } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface PaymentNotification {
@@ -28,12 +28,26 @@ interface UserData {
   createdAt: string;
 }
 
+interface Feedback {
+  id: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  message: string;
+  reply?: string;
+  status: 'pending' | 'replied';
+  createdAt: any;
+  repliedAt?: any;
+}
+
 export default function Admin() {
   const { profile, user } = useAuth();
   const [notifications, setNotifications] = useState<PaymentNotification[]>([]);
   const [users, setUsers] = useState<UserData[]>([]);
-  const [activeTab, setActiveTab] = useState<'notifications' | 'users'>('notifications');
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [activeTab, setActiveTab] = useState<'notifications' | 'users' | 'feedbacks'>('notifications');
   const [loading, setLoading] = useState(true);
+  const [replyText, setReplyText] = useState<Record<string, string>>({});
 
   const isAdmin = profile?.role === 'admin' || 
                   profile?.email?.toLowerCase() === 'selim388028@gmail.com' ||
@@ -66,9 +80,21 @@ export default function Admin() {
       if (activeTab === 'users') setLoading(false);
     });
 
+    // Listen for feedbacks
+    const qFeedbacks = collection(db, 'feedbacks');
+    const unsubscribeFeedbacks = onSnapshot(qFeedbacks, (snapshot) => {
+      const docs = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Feedback[];
+      setFeedbacks(docs.sort((a, b) => b.createdAt?.toDate().getTime() - a.createdAt?.toDate().getTime()));
+      if (activeTab === 'feedbacks') setLoading(false);
+    });
+
     return () => {
       unsubscribeNotif();
       unsubscribeUsers();
+      unsubscribeFeedbacks();
     };
   }, [isAdmin, activeTab]);
 
@@ -127,6 +153,24 @@ export default function Admin() {
     }
   };
 
+  const handleReplyFeedback = async (feedbackId: string) => {
+    const reply = replyText[feedbackId];
+    if (!reply?.trim()) return;
+
+    try {
+      await updateDoc(doc(db, 'feedbacks', feedbackId), {
+        reply: reply.trim(),
+        status: 'replied',
+        repliedAt: serverTimestamp()
+      });
+      setReplyText(prev => ({ ...prev, [feedbackId]: '' }));
+      alert('Cevap gönderildi.');
+    } catch (error) {
+      console.error(error);
+      alert('Cevap gönderilirken bir hata oluştu.');
+    }
+  };
+
   if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -152,11 +196,11 @@ export default function Admin() {
         </div>
       </div>
 
-      <div className="flex p-1 bg-slate-100 rounded-xl mb-8 w-fit">
+      <div className="flex p-1 bg-slate-100 rounded-xl mb-8 w-fit overflow-x-auto">
         <button
           onClick={() => setActiveTab('notifications')}
           className={cn(
-            "px-6 py-2 text-sm font-bold rounded-lg transition-all flex items-center gap-2",
+            "px-6 py-2 text-sm font-bold rounded-lg transition-all flex items-center gap-2 whitespace-nowrap",
             activeTab === 'notifications' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
           )}
         >
@@ -166,12 +210,22 @@ export default function Admin() {
         <button
           onClick={() => setActiveTab('users')}
           className={cn(
-            "px-6 py-2 text-sm font-bold rounded-lg transition-all flex items-center gap-2",
+            "px-6 py-2 text-sm font-bold rounded-lg transition-all flex items-center gap-2 whitespace-nowrap",
             activeTab === 'users' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
           )}
         >
           <User className="w-4 h-4" />
           Kullanıcılar ({users.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('feedbacks')}
+          className={cn(
+            "px-6 py-2 text-sm font-bold rounded-lg transition-all flex items-center gap-2 whitespace-nowrap",
+            activeTab === 'feedbacks' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+          )}
+        >
+          <MessageSquare className="w-4 h-4" />
+          Geri Bildirimler ({feedbacks.filter(f => f.status === 'pending').length})
         </button>
       </div>
 
@@ -250,7 +304,7 @@ export default function Admin() {
               </motion.div>
             ))
           )
-        ) : (
+        ) : activeTab === 'users' ? (
           <div className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -302,6 +356,76 @@ export default function Admin() {
                 </tbody>
               </table>
             </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {feedbacks.length === 0 ? (
+              <div className="bg-white rounded-3xl p-12 text-center border border-slate-100 shadow-sm">
+                <MessageSquare className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                <h3 className="text-lg font-bold text-slate-800">Geri Bildirim Yok</h3>
+                <p className="text-slate-500">Henüz herhangi bir geri bildirim veya öneri gönderilmemiş.</p>
+              </div>
+            ) : (
+              feedbacks.map((f) => (
+                <motion.div
+                  key={f.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center font-bold">
+                        {f.userName.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-800">{f.userName}</p>
+                        <p className="text-xs text-slate-500">{f.userEmail}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-slate-400">{f.createdAt?.toDate().toLocaleString('tr-TR')}</p>
+                      <span className={cn(
+                        "text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full",
+                        f.status === 'pending' ? "bg-amber-100 text-amber-600" : "bg-emerald-100 text-emerald-600"
+                      )}>
+                        {f.status === 'pending' ? 'Bekliyor' : 'Cevaplandı'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-50 rounded-2xl p-4 mb-4">
+                    <p className="text-slate-700 text-sm italic">"{f.message}"</p>
+                  </div>
+
+                  {f.reply ? (
+                    <div className="bg-indigo-50 rounded-2xl p-4 border border-indigo-100">
+                      <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest mb-1">Cevabın:</p>
+                      <p className="text-indigo-900 text-sm">{f.reply}</p>
+                      <p className="text-[10px] text-indigo-400 mt-2">{f.repliedAt?.toDate().toLocaleString('tr-TR')}</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <textarea
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none resize-none text-sm"
+                        placeholder="Cevabınızı yazın..."
+                        rows={3}
+                        value={replyText[f.id] || ''}
+                        onChange={(e) => setReplyText(prev => ({ ...prev, [f.id]: e.target.value }))}
+                      />
+                      <button
+                        onClick={() => handleReplyFeedback(f.id)}
+                        disabled={!replyText[f.id]?.trim()}
+                        className="flex items-center gap-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white rounded-xl font-bold text-sm transition-all ml-auto"
+                      >
+                        <Send className="w-4 h-4" />
+                        Cevapla
+                      </button>
+                    </div>
+                  )}
+                </motion.div>
+              ))
+            )}
           </div>
         )}
       </div>

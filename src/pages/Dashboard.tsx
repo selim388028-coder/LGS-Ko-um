@@ -1,16 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useAppContext } from '../context/AppContext';
-import { Target, TrendingUp, BookOpen, AlertCircle, CheckCircle2, Bot, Sparkles, FileText, ChevronRight, ShieldCheck } from 'lucide-react';
-import { motion } from 'motion/react';
+import { 
+  Target, 
+  TrendingUp, 
+  BookOpen, 
+  AlertCircle, 
+  CheckCircle2, 
+  Bot, 
+  Sparkles, 
+  FileText, 
+  ChevronRight, 
+  ShieldCheck,
+  MessageSquare 
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ResponsiveContainer, LineChart, Line, Tooltip } from 'recharts';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
 import { cn } from '../lib/utils';
 
 export default function Dashboard() {
   const { profile, user } = useAuth();
   const { mockExams, studyPlan, mistakes, toggleTaskCompleted } = useAppContext();
   const navigate = useNavigate();
+  const [repliedFeedbacks, setRepliedFeedbacks] = useState<any[]>([]);
 
   const today = new Date().toISOString().split('T')[0];
   const todaysTasks = studyPlan.filter(task => task.date === today);
@@ -26,6 +41,23 @@ export default function Dashboard() {
   const isAdmin = profile?.role === 'admin' || 
                   profile?.email?.toLowerCase() === 'selim388028@gmail.com' ||
                   user?.email?.toLowerCase() === 'selim388028@gmail.com';
+
+  useEffect(() => {
+    if (!user) return;
+
+    const q = query(
+      collection(db, 'feedbacks'),
+      where('userId', '==', user.uid),
+      where('status', '==', 'replied')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setRepliedFeedbacks(docs);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
 
   return (
     <div className="space-y-6">
@@ -52,6 +84,36 @@ export default function Dashboard() {
           </button>
         </motion.div>
       )}
+
+      <AnimatePresence>
+        {repliedFeedbacks.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="space-y-3"
+          >
+            {repliedFeedbacks.map((f) => (
+              <div key={f.id} className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
+                    <MessageSquare className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-emerald-900">Geri Bildirimin Cevaplandı!</p>
+                    <p className="text-xs text-emerald-700 mt-1 font-medium italic">"{f.message}"</p>
+                    <div className="mt-2 bg-white/50 rounded-xl p-3 border border-emerald-200/50">
+                      <p className="text-xs font-bold text-emerald-800 uppercase tracking-widest mb-1">Kurucu Cevabı:</p>
+                      <p className="text-sm text-emerald-900">{f.reply}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">

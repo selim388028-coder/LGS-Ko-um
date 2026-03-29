@@ -101,6 +101,18 @@ service cloud.firestore {
              data.createdAt is timestamp;
     }
 
+    function isValidFeedback(data) {
+      return hasRequiredFields(['userId', 'userEmail', 'userName', 'message', 'status', 'createdAt']) &&
+             data.userId is string && data.userId.size() > 0 &&
+             data.userEmail is string && isValidEmail(data.userEmail) &&
+             data.userName is string && data.userName.size() > 0 &&
+             data.message is string && data.message.size() > 0 && data.message.size() < 2000 &&
+             data.status in ['pending', 'replied'] &&
+             data.createdAt is timestamp &&
+             (!('reply' in data) || (data.reply is string && data.reply.size() < 2000)) &&
+             (!('repliedAt' in data) || (data.repliedAt is timestamp));
+    }
+
     // ===============================================================
     // Rules
     // ===============================================================
@@ -130,6 +142,13 @@ service cloud.firestore {
       allow read: if isAuthenticated() && (request.auth.uid == resource.data.userId || isAdmin());
       allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId && isValidPaymentNotification(request.resource.data);
       allow update, delete: if isAdmin();
+    }
+
+    match /feedbacks/{feedbackId} {
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.userId || isAdmin());
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId && isValidFeedback(request.resource.data);
+      allow update: if isAdmin() && isValidFeedback(request.resource.data);
+      allow delete: if isAdmin();
     }
 
     // Default deny
