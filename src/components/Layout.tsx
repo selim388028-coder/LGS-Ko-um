@@ -13,7 +13,8 @@ import {
   Menu,
   X,
   User,
-  Sparkles
+  Sparkles,
+  ShieldCheck
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import Logo from './Logo';
@@ -34,6 +35,7 @@ const navigation = [
   { name: 'Canlı Soru Çözümü', href: '/ai-solver', icon: Bot },
   { name: 'Motivasyon', href: '/motivation', icon: Flame },
   { name: 'Profilim', href: '/profile', icon: User },
+  { name: 'Admin Paneli', href: '/admin', icon: ShieldCheck, adminOnly: true },
 ];
 
 export default function Layout() {
@@ -54,7 +56,7 @@ export default function Layout() {
             </button>
           </div>
           <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-            {navigation.map((item) => (
+            {navigation.filter(item => !item.adminOnly || profile?.role === 'admin').map((item) => (
               <NavLink
                 key={item.name}
                 to={item.href}
@@ -98,7 +100,7 @@ export default function Layout() {
           <Logo size="sm" />
         </div>
         <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-          {navigation.map((item) => (
+          {navigation.filter(item => !item.adminOnly || profile?.role === 'admin').map((item) => (
             <NavLink
               key={item.name}
               to={item.href}

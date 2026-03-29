@@ -36,6 +36,7 @@ export default function Register() {
           dailyGoal: 50,
           isPremium: false,
           isEmailVerified: true,
+          role: user.email === 'selim388028@gmail.com' ? 'admin' : 'user',
           createdAt: new Date().toISOString()
         });
       } catch (fsError) {

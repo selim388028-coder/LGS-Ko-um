@@ -20,6 +20,7 @@ import Payment from './pages/Payment';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import Admin from './pages/Admin';
 
 function ProtectedRoute() {
   const { user, profile, loading, isAuthReady } = useAuth();
@@ -90,6 +91,7 @@ function AppRoutes() {
           <Route path="/school-exams" element={<SchoolExams />} />
           <Route path="/take-exam/:type" element={<TakeExam />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/admin" element={<Admin />} />
         </Route>
         <Route path="/payment" element={<Payment />} />
       </Route>

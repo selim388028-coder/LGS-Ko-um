@@ -17,6 +17,7 @@ interface UserProfile {
   dailyGoal?: number;
   isPremium?: boolean;
   isEmailVerified?: boolean;
+  role?: 'admin' | 'user';
   verificationCode?: string;
   verificationCodeExpires?: string;
   createdAt: string;

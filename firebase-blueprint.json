@@ -17,12 +17,31 @@
         "createdAt": { "type": "string", "format": "date-time", "description": "Profile creation timestamp" }
       },
       "required": ["uid", "email", "displayName", "isEmailVerified", "createdAt"]
+    },
+    "PaymentNotification": {
+      "title": "Payment Notification",
+      "description": "Manual payment notification for IBAN transfers",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "User ID who made the payment" },
+        "userEmail": { "type": "string", "format": "email", "description": "User email" },
+        "senderName": { "type": "string", "description": "Name of the person who sent the money" },
+        "paymentDate": { "type": "string", "format": "date", "description": "Date of payment" },
+        "amount": { "type": "string", "description": "Amount paid" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"], "description": "Status of the notification" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Notification creation timestamp" }
+      },
+      "required": ["userId", "userEmail", "senderName", "paymentDate", "amount", "status", "createdAt"]
     }
   },
   "firestore": {
     "/users/{userId}": {
       "schema": "UserProfile",
       "description": "User profiles"
+    },
+    "/payment_notifications/{notificationId}": {
+      "schema": "PaymentNotification",
+      "description": "Manual payment notifications"
     }
   }
 }

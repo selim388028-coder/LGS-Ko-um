@@ -19,6 +19,17 @@ service cloud.firestore {
     //   - verificationCodeExpires: string (optional) - ISO 8601 date-time
     //   - createdAt: string (required) - ISO 8601 date-time
     //
+    // Collection: payment_notifications
+    // Document ID: {notificationId}
+    // Fields:
+    //   - userId: string (required) - User ID
+    //   - userEmail: string (required) - User email
+    //   - senderName: string (required) - Name of sender
+    //   - paymentDate: string (required) - Date of payment
+    //   - amount: string (required) - Amount paid
+    //   - status: string (required) - Status (pending/approved/rejected)
+    //   - createdAt: timestamp (required) - Creation time
+    //
     // ===============================================================
 
     // ===============================================================
@@ -76,6 +87,17 @@ service cloud.firestore {
              (!('verificationCodeExpires' in data) || (data.verificationCodeExpires == null || isValidDateString(data.verificationCodeExpires)));
     }
 
+    function isValidPaymentNotification(data) {
+      return hasRequiredFields(['userId', 'userEmail', 'senderName', 'paymentDate', 'amount', 'status', 'createdAt']) &&
+             data.userId is string && data.userId.size() > 0 &&
+             data.userEmail is string && isValidEmail(data.userEmail) &&
+             data.senderName is string && data.senderName.size() > 0 &&
+             data.paymentDate is string &&
+             data.amount is string &&
+             data.status in ['pending', 'approved', 'rejected'] &&
+             data.createdAt is timestamp;
+    }
+
     // ===============================================================
     // Rules
     // ===============================================================
@@ -84,12 +106,20 @@ service cloud.firestore {
       allow read: if isOwner(userId) || isAdmin();
       
       allow create: if isOwner(userId) && isValidUser(request.resource.data) && 
-                      (!('role' in request.resource.data) || request.resource.data.role == 'user');
+                      (!('role' in request.resource.data) || 
+                       request.resource.data.role == 'user' || 
+                       (request.resource.data.role == 'admin' && request.auth.token.email == "selim388028@gmail.com"));
       
       allow update: if (isOwner(userId) && isValidUser(request.resource.data) && 
                       (!('role' in resource.data) || !('role' in request.resource.data) || request.resource.data.role == resource.data.role)) || isAdmin();
       
       allow delete: if isAdmin();
+    }
+
+    match /payment_notifications/{notificationId} {
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.userId || isAdmin());
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId && isValidPaymentNotification(request.resource.data);
+      allow update, delete: if isAdmin();
     }
 
     // Default deny
