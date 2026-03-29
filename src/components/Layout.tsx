@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -16,7 +16,8 @@ import {
   Sparkles,
   ShieldCheck,
   MessageSquare,
-  Lock
+  Lock,
+  Download
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import Logo from './Logo';
@@ -44,9 +45,29 @@ const navigation = [
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const { profile, user } = useAuth();
   const { hasNewExamResult } = useAppContext();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    });
+  }, []);
+
+  const handleInstall = () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult: any) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User accepted the install prompt');
+        }
+        setDeferredPrompt(null);
+      });
+    }
+  };
 
   const isAdmin = profile?.role === 'admin' || 
                   profile?.email?.toLowerCase() === 'selim388028@gmail.com' ||
@@ -114,8 +135,8 @@ export default function Layout() {
             </button>
           </nav>
           
-          {!profile?.isPremium && (
-            <div className="p-4 border-t">
+          <div className="p-4 border-t space-y-3">
+            {!profile?.isPremium && (
               <NavLink
                 to="/payment"
                 onClick={() => setSidebarOpen(false)}
@@ -124,8 +145,15 @@ export default function Layout() {
                 <Sparkles className="w-4 h-4" />
                 Premium'a Geç
               </NavLink>
-            </div>
-          )}
+            )}
+            <button
+              onClick={handleInstall}
+              className="flex flex-col items-center justify-center gap-1 w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition-colors"
+            >
+              <Download className="w-5 h-5" />
+              Mobile İndirin
+            </button>
+          </div>
         </div>
       </div>
 
@@ -167,8 +195,8 @@ export default function Layout() {
           </button>
         </nav>
 
-        {!profile?.isPremium && (
-          <div className="p-4 border-t border-slate-100">
+        <div className="p-4 border-t border-slate-100 space-y-3">
+          {!profile?.isPremium && (
             <NavLink
               to="/payment"
               className="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-bold text-sm shadow-lg shadow-amber-100 hover:shadow-amber-200 transition-all hover:-translate-y-0.5"
@@ -176,8 +204,15 @@ export default function Layout() {
               <Sparkles className="w-4 h-4" />
               Premium'a Geç
             </NavLink>
-          </div>
-        )}
+          )}
+          <button
+            onClick={handleInstall}
+            className="flex flex-col items-center justify-center gap-1 w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition-colors"
+          >
+            <Download className="w-5 h-5" />
+            Mobile İndirin
+          </button>
+        </div>
       </div>
 
 
