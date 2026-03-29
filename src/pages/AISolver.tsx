@@ -114,6 +114,10 @@ export default function AISolver() {
         throw new Error("Sistem yapılandırma hatası: API Anahtarı bulunamadı.");
       }
 
+      if (!profile?.isPremium) {
+        throw new Error("Bu özelliği kullanmak için premium üyeliğinizin olması gerekmektedir.");
+      }
+
       // 1. Get Media Streams
       addDebug("Medya izinleri isteniyor...");
       let visualStream: MediaStream;
@@ -415,7 +419,21 @@ export default function AISolver() {
   };
 
   useEffect(() => {
-    return () => stopSession("Sayfadan Ayrılma/Unmount");
+    const handleInteraction = () => {
+      if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+        audioContextRef.current.resume();
+      }
+      if (micContextRef.current && micContextRef.current.state === 'suspended') {
+        micContextRef.current.resume();
+      }
+    };
+    window.addEventListener('click', handleInteraction);
+    window.addEventListener('touchstart', handleInteraction);
+    return () => {
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+      stopSession("Sayfadan Ayrılma/Unmount");
+    };
   }, []);
 
   if (!profile?.isPremium) {

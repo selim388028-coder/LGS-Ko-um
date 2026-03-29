@@ -12,6 +12,8 @@ interface AppContextType extends AppState {
   generateStudyPlan: (profile: UserProfile) => void;
   addPastQuestion: (question: PastQuestion) => void;
   upgradeToPremium: () => void;
+  setPendingExamPart: (part: AppState['pendingExamPart']) => void;
+  clearPendingExamPart: () => void;
   hasNewExamResult: boolean;
   setHasNewExamResult: (val: boolean) => void;
 }
@@ -59,6 +61,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const addPastQuestion = (question: PastQuestion) => {
     setState((s) => ({ ...s, pastQuestions: [...(s.pastQuestions || []), question] }));
+  };
+
+  const setPendingExamPart = (pendingExamPart: AppState['pendingExamPart']) => {
+    setState((s) => ({ ...s, pendingExamPart }));
+  };
+
+  const clearPendingExamPart = () => {
+    setState((s) => ({ ...s, pendingExamPart: undefined }));
   };
 
   const generateStudyPlan = (profile: UserProfile) => {
@@ -112,6 +122,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         generateStudyPlan,
         addPastQuestion,
         upgradeToPremium,
+        setPendingExamPart,
+        clearPendingExamPart,
         hasNewExamResult,
         setHasNewExamResult,
       }}

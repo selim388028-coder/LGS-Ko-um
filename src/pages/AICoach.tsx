@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Bot, Send, User, Loader2, Sparkles, Monitor, MicOff } from 'lucide-react';
 import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PremiumPaywall from '../components/PremiumPaywall';
 
@@ -12,6 +13,7 @@ interface Message {
 
 export default function AICoach() {
   const { profile } = useAuth();
+  const location = useLocation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -51,6 +53,12 @@ Görevlerin:
               text: `Merhaba ${profile.displayName}! Ben senin kişisel AI Koçunum. Hedefin olan **${profile.targetHighSchool}** lisesine ulaşman için buradayım.\n\nHangi konuyu çalışmak istersin veya hangi soruyu çözemedin? Bana yaz, hemen anlatayım ve örneklerle pekiştirelim!` 
             }
           ]);
+
+          // Handle initial message from location state
+          const state = location.state as { initialMessage?: string };
+          if (state?.initialMessage) {
+            handleInitialMessage(state.initialMessage);
+          }
         } catch (error) {
           console.error("AI Error:", error);
           setMessages([{ role: 'model', text: "Üzgünüm, bağlantı kurulurken bir hata oluştu. Lütfen sayfayı yenile." }]);
@@ -95,9 +103,13 @@ Görevlerin:
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading || !chatRef.current) return;
+    await sendMessage(input);
+  };
 
-    const userText = input.trim();
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || isLoading || !chatRef.current) return;
+
+    const userText = text.trim();
     setInput('');
     setMessages(prev => [...prev, { role: 'user', text: userText }]);
     setIsLoading(true);
@@ -111,6 +123,13 @@ Görevlerin:
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleInitialMessage = async (text: string) => {
+    // Wait a bit for the chat to be ready
+    setTimeout(async () => {
+      await sendMessage(text);
+    }, 500);
   };
 
   if (!profile?.isPremium) {

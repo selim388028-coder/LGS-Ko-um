@@ -16,6 +16,15 @@ export interface MockExam {
   scores: Record<Subject, { correct: number; incorrect: number; blank: number; net: number }>;
   totalNet: number;
   totalScore: number;
+  wrongQuestions?: { 
+    id: number;
+    subject: Subject; 
+    questionNumber: number; 
+    text: string; 
+    options: Record<string, string>; 
+    correctAnswer: string; 
+    userAnswer: string 
+  }[];
 }
 
 export interface Mistake {
@@ -53,4 +62,9 @@ export interface AppState {
   mistakes: Mistake[];
   studyPlan: StudyTask[];
   pastQuestions: PastQuestion[];
+  pendingExamPart?: { 
+    type: 'sozel' | 'sayisal'; 
+    answers: Record<number, string>;
+    date: string;
+  };
 }

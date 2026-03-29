@@ -23,15 +23,31 @@ import Profile from './pages/Profile';
 
 function ProtectedRoute() {
   const { user, profile, loading, isAuthReady } = useAuth();
+  const [showSpinner, setShowSpinner] = React.useState(false);
   
-  // Debug logging for unmount issues
+  // Debounce the loading state to prevent flickering
   React.useEffect(() => {
+    let timer: NodeJS.Timeout;
     if (!isAuthReady || loading) {
-      console.log(`[ProtectedRoute] Spinner gösteriliyor. isAuthReady: ${isAuthReady}, loading: ${loading}`);
+      // If it's still loading after 500ms, show the spinner
+      timer = setTimeout(() => {
+        setShowSpinner(true);
+      }, 500);
+    } else {
+      setShowSpinner(false);
     }
+    return () => clearTimeout(timer);
   }, [isAuthReady, loading]);
 
+  // If we are definitely not logged in and auth is ready, redirect immediately
+  if (isAuthReady && !loading && !user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // If we are still waiting for auth or profile, show spinner (if debounced)
   if (!isAuthReady || loading) {
+    if (!showSpinner) return null; // Return nothing for the first 500ms to prevent unmount flicker
+    
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
@@ -39,10 +55,6 @@ function ProtectedRoute() {
     );
   }
   
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
   return <Outlet />;
 }
 

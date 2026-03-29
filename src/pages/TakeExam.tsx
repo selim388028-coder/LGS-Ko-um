@@ -6,12 +6,12 @@ import { sayisalDeneme } from '../data/sayisalDeneme';
 import { sayisalImages } from '../data/sayisalImages';
 import { useAppContext } from '../context/AppContext';
 import { cn } from '../lib/utils';
-import { Subject } from '../types';
+import { Subject, MockExam } from '../types';
 
 export default function TakeExam() {
   const navigate = useNavigate();
   const { type } = useParams<{ type: string }>();
-  const { addMockExam, setHasNewExamResult } = useAppContext();
+  const { addMockExam, setHasNewExamResult, pendingExamPart, setPendingExamPart, clearPendingExamPart } = useAppContext();
   
   const isSayisal = type === 'sayisal';
   const examData = isSayisal ? sayisalDeneme : sozelDeneme;
@@ -79,6 +79,8 @@ export default function TakeExam() {
 
   const calculateScore = () => {
     const results: Record<string, { correct: number; incorrect: number; blank: number }> = {};
+    const wrongQuestions: MockExam['wrongQuestions'] = [];
+    
     SUBJECTS.forEach(s => {
       results[s] = { correct: 0, incorrect: 0, blank: 0 };
     });
@@ -91,29 +93,83 @@ export default function TakeExam() {
         results[q.subject].correct++;
       } else {
         results[q.subject].incorrect++;
+        wrongQuestions.push({
+          id: q.id,
+          subject: q.subject as Subject,
+          questionNumber: q.questionNumber,
+          text: q.text,
+          options: q.options,
+          correctAnswer: q.correctAnswer,
+          userAnswer: userAnswer
+        });
       }
     });
+
+    if (!isSayisal) {
+      // If Sözel is finished, save as pending and go back to exams
+      setPendingExamPart({
+        type: 'sozel',
+        answers: answers,
+        date: new Date().toISOString()
+      });
+      navigate('/exams');
+      return;
+    }
+
+    // If Sayısal is finished, check for pending Sözel
+    const combinedAnswers = { ...answers };
+    let combinedWrongQuestions = [...wrongQuestions];
+    const combinedResults = { ...results };
+
+    if (pendingExamPart && pendingExamPart.type === 'sozel') {
+      // Add Sözel results
+      sozelDeneme.forEach(q => {
+        const userAnswer = pendingExamPart.answers[q.id];
+        if (!combinedResults[q.subject]) {
+          combinedResults[q.subject] = { correct: 0, incorrect: 0, blank: 0 };
+        }
+        
+        if (!userAnswer) {
+          combinedResults[q.subject].blank++;
+        } else if (userAnswer === q.correctAnswer) {
+          combinedResults[q.subject].correct++;
+        } else {
+          combinedResults[q.subject].incorrect++;
+          combinedWrongQuestions.push({
+            id: q.id,
+            subject: q.subject as Subject,
+            questionNumber: q.questionNumber,
+            text: q.text,
+            options: q.options,
+            correctAnswer: q.correctAnswer,
+            userAnswer: userAnswer
+          });
+        }
+      });
+    }
 
     const calculateNet = (correct: number, incorrect: number) => correct - (incorrect / 3);
     
     const nets: Record<string, number> = {};
-    SUBJECTS.forEach(s => {
-      nets[s] = calculateNet(results[s].correct, results[s].incorrect);
+    Object.keys(combinedResults).forEach(s => {
+      nets[s] = calculateNet(combinedResults[s].correct, combinedResults[s].incorrect);
     });
 
     let totalWeightedNet = 0;
     let totalNet = 0;
     
-    if (isSayisal) {
-      totalWeightedNet = (nets['Matematik'] * 4) + (nets['Fen Bilimleri'] * 4);
-      totalNet = nets['Matematik'] + nets['Fen Bilimleri'];
-    } else {
-      totalWeightedNet = (nets['Türkçe'] * 4) + (nets['T.C. İnkılap Tarihi'] * 1) + (nets['Din Kültürü'] * 1) + (nets['İngilizce'] * 1);
-      totalNet = nets['Türkçe'] + nets['T.C. İnkılap Tarihi'] + nets['Din Kültürü'] + nets['İngilizce'];
-    }
+    // Calculate total nets for all subjects
+    const allSubjects = ['Türkçe', 'T.C. İnkılap Tarihi', 'Din Kültürü', 'İngilizce', 'Matematik', 'Fen Bilimleri'];
+    allSubjects.forEach(s => {
+      if (nets[s]) {
+        totalNet += nets[s];
+        const coeff = (s === 'Türkçe' || s === 'Matematik' || s === 'Fen Bilimleri') ? 4 : 1;
+        totalWeightedNet += nets[s] * coeff;
+      }
+    });
 
-    const maxWeightedNet = isSayisal ? 160 : 110;
-    const totalScore = (totalWeightedNet / maxWeightedNet) * 500;
+    // LGS Score Calculation
+    const totalScore = 194.75 + (totalWeightedNet * 1.1305);
 
     const scoresPayload: any = {
       'Türkçe': { correct: 0, incorrect: 0, blank: 20, net: 0 },
@@ -124,25 +180,24 @@ export default function TakeExam() {
       'Din Kültürü ve Ahlak Bilgisi': { correct: 0, incorrect: 0, blank: 10, net: 0 },
     };
 
-    if (isSayisal) {
-      scoresPayload['Matematik'] = { ...results['Matematik'], net: nets['Matematik'] };
-      scoresPayload['Fen Bilimleri'] = { ...results['Fen Bilimleri'], net: nets['Fen Bilimleri'] };
-    } else {
-      scoresPayload['Türkçe'] = { ...results['Türkçe'], net: nets['Türkçe'] };
-      scoresPayload['T.C. İnkılap Tarihi ve Atatürkçülük'] = { ...results['T.C. İnkılap Tarihi'], net: nets['T.C. İnkılap Tarihi'] };
-      scoresPayload['Yabancı Dil'] = { ...results['İngilizce'], net: nets['İngilizce'] };
-      scoresPayload['Din Kültürü ve Ahlak Bilgisi'] = { ...results['Din Kültürü'], net: nets['Din Kültürü'] };
-    }
+    scoresPayload['Matematik'] = { ...combinedResults['Matematik'], net: nets['Matematik'] || 0 };
+    scoresPayload['Fen Bilimleri'] = { ...combinedResults['Fen Bilimleri'], net: nets['Fen Bilimleri'] || 0 };
+    scoresPayload['Türkçe'] = { ...combinedResults['Türkçe'], net: nets['Türkçe'] || 0 };
+    scoresPayload['T.C. İnkılap Tarihi ve Atatürkçülük'] = { ...combinedResults['T.C. İnkılap Tarihi'], net: nets['T.C. İnkılap Tarihi'] || 0 };
+    scoresPayload['Yabancı Dil'] = { ...combinedResults['İngilizce'], net: nets['İngilizce'] || 0 };
+    scoresPayload['Din Kültürü ve Ahlak Bilgisi'] = { ...combinedResults['Din Kültürü'], net: nets['Din Kültürü'] || 0 };
 
     addMockExam({
       id: Math.random().toString(36).substring(7),
-      name: examName,
+      name: 'Tam Deneme Sınavı',
       date: new Date().toISOString().split('T')[0],
       totalNet: totalNet,
-      totalScore: Math.round(totalScore),
-      scores: scoresPayload
+      totalScore: Math.round(Math.min(500, totalScore)),
+      scores: scoresPayload,
+      wrongQuestions: combinedWrongQuestions
     });
 
+    clearPendingExamPart();
     setHasNewExamResult(true);
     navigate('/exams');
   };
