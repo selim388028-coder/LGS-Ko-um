@@ -45,29 +45,9 @@ const navigation = [
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const { profile, user } = useAuth();
   const { hasNewExamResult } = useAppContext();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    });
-  }, []);
-
-  const handleInstall = () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult: any) => {
-        if (choiceResult.outcome === 'accepted') {
-          console.log('User accepted the install prompt');
-        }
-        setDeferredPrompt(null);
-      });
-    }
-  };
 
   const isAdmin = profile?.role === 'admin' || 
                   profile?.email?.toLowerCase() === 'selim388028@gmail.com' ||
@@ -146,13 +126,9 @@ export default function Layout() {
                 Premium'a Geç
               </NavLink>
             )}
-            <button
-              onClick={handleInstall}
-              className="flex flex-col items-center justify-center gap-1 w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition-colors"
-            >
-              <Download className="w-5 h-5" />
-              Mobile İndirin
-            </button>
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[10px] text-slate-500 text-center">
+              Uygulamayı telefonuna yüklemek için tarayıcı menüsünden <strong>"Ana Ekrana Ekle"</strong> seçeneğine tıkla.
+            </div>
           </div>
         </div>
       </div>
@@ -205,13 +181,9 @@ export default function Layout() {
               Premium'a Geç
             </NavLink>
           )}
-          <button
-            onClick={handleInstall}
-            className="flex flex-col items-center justify-center gap-1 w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition-colors"
-          >
-            <Download className="w-5 h-5" />
-            Mobile İndirin
-          </button>
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[10px] text-slate-500 text-center">
+            Uygulamayı telefonuna yüklemek için tarayıcı menüsünden <strong>"Ana Ekrana Ekle"</strong> seçeneğine tıkla.
+          </div>
         </div>
       </div>
 
