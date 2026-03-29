@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import PremiumPaywall from '../components/PremiumPaywall';
 
 const SUMMARIES = [
   {
@@ -40,8 +42,16 @@ const SUMMARIES = [
 ];
 
 export default function MiniSummaries() {
+  const { profile, user } = useAuth();
+  const isAdmin = profile?.role === 'admin' || 
+                  profile?.email?.toLowerCase() === 'selim388028@gmail.com' ||
+                  user?.email?.toLowerCase() === 'selim388028@gmail.com';
   const [openSubject, setOpenSubject] = useState<string | null>("Matematik");
   const [openTopic, setOpenTopic] = useState<string | null>(null);
+
+  if (!profile?.isPremium && !isAdmin) {
+    return <PremiumPaywall featureName="Mini Özetler" />;
+  }
 
   const toggleSubject = (subject: string) => {
     if (openSubject === subject) {

@@ -22,19 +22,20 @@ import Logo from './Logo';
 import { useAuth } from '../context/AuthContext';
 import { useAppContext } from '../context/AppContext';
 import FeedbackModal from './FeedbackModal';
+import FeedbackNotifications from './FeedbackNotifications';
 
 const navigation = [
   { name: 'Özet', href: '/', icon: LayoutDashboard },
   { name: 'Çalışma Planı', href: '/plan', icon: CalendarDays },
   { name: 'Denemeler', href: '/online-exams', icon: FileText },
   { name: 'Deneme Takibi', href: '/exams', icon: Target },
-  { name: 'Yanlış Defteri', href: '/mistakes', icon: BookX },
+  { name: 'Yanlış Defteri', href: '/mistakes', icon: BookX, premiumOnly: true },
   { name: 'Süre Tutucu', href: '/timer', icon: TimerIcon },
-  { name: 'LGS 2026', href: '/lgs-2026', icon: Target },
-  { name: 'Mini Özetler', href: '/summaries', icon: BookOpen },
-  { name: 'Yazılı Hazırlık', href: '/school-exams', icon: FileText },
-  { name: 'AI Koçum', href: '/ai-coach', icon: Bot },
-  { name: 'Canlı Soru Çözümü', href: '/ai-solver', icon: Bot },
+  { name: 'LGS 2026', href: '/lgs-2026', icon: Target, premiumOnly: true },
+  { name: 'Mini Özetler', href: '/summaries', icon: BookOpen, premiumOnly: true },
+  { name: 'Yazılı Hazırlık', href: '/school-exams', icon: FileText, premiumOnly: true },
+  { name: 'AI Koçum', href: '/ai-coach', icon: Bot, premiumOnly: true },
+  { name: 'Canlı Soru Çözümü', href: '/ai-solver', icon: Bot, premiumOnly: true },
   { name: 'Motivasyon', href: '/motivation', icon: Flame },
   { name: 'Profilim', href: '/profile', icon: User },
   { name: 'Admin Paneli', href: '/admin', icon: ShieldCheck, adminOnly: true },
@@ -50,6 +51,12 @@ export default function Layout() {
                   profile?.email?.toLowerCase() === 'selim388028@gmail.com' ||
                   user?.email?.toLowerCase() === 'selim388028@gmail.com';
 
+  const filteredNavigation = navigation.filter(item => {
+    if (item.adminOnly && !isAdmin) return false;
+    if (item.premiumOnly && !profile?.isPremium && !isAdmin) return false;
+    return true;
+  });
+
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Mobile sidebar */}
@@ -63,7 +70,7 @@ export default function Layout() {
             </button>
           </div>
           <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-            {navigation.filter(item => !item.adminOnly || isAdmin).map((item) => (
+            {filteredNavigation.map((item) => (
               <NavLink
                 key={item.name}
                 to={item.href}
@@ -113,11 +120,12 @@ export default function Layout() {
 
       {/* Desktop sidebar */}
       <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 bg-white border-r border-slate-200">
-        <div className="flex items-center h-16 px-6 border-b border-slate-200">
+        <div className="flex items-center justify-between h-16 px-6 border-b border-slate-200">
           <Logo size="sm" />
+          <FeedbackNotifications />
         </div>
         <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-          {navigation.filter(item => !item.adminOnly || isAdmin).map((item) => (
+          {filteredNavigation.map((item) => (
             <NavLink
               key={item.name}
               to={item.href}
@@ -169,7 +177,7 @@ export default function Layout() {
             <Menu className="w-6 h-6" />
           </button>
           <Logo size="sm" />
-          <div className="w-6" /> {/* Spacer */}
+          <FeedbackNotifications />
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">

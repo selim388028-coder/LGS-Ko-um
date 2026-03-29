@@ -8,7 +8,7 @@ import { User, Target, Trophy, LogOut, CheckCircle2, Loader2, AlertCircle, Spark
 import { cn } from '../lib/utils';
 
 export default function Profile() {
-  const { user, profile, logout, loading: authLoading } = useAuth();
+  const { user, profile, logout, loading: authLoading, repairProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,18 +75,12 @@ export default function Profile() {
     }
   };
 
-  const handleUnlockAll = async () => {
-    if (!user || !profile) return;
+  const handleRepair = async () => {
     setLoading(true);
     try {
-      await updateDoc(doc(db, 'users', user.uid), {
-        isPremium: true,
-        role: 'admin'
-      });
-      setSuccess(true);
-    } catch (err: any) {
+      await repairProfile();
+    } catch (err) {
       console.error(err);
-      setError('Yetkiler güncellenirken bir hata oluştu.');
     } finally {
       setLoading(false);
     }
@@ -105,13 +99,23 @@ export default function Profile() {
       <div className="max-w-md mx-auto mt-12 p-8 bg-white rounded-3xl border border-slate-100 shadow-sm text-center">
         <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
         <h2 className="text-xl font-bold text-slate-800 mb-2">Profil Bulunamadı</h2>
-        <p className="text-slate-500 mb-6">Hesap bilgilerine ulaşılamadı. Lütfen tekrar giriş yapmayı dene.</p>
-        <button 
-          onClick={() => logout()}
-          className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all"
-        >
-          Çıkış Yap
-        </button>
+        <p className="text-slate-500 mb-6">Hesap bilgilerine ulaşılamadı. Lütfen tekrar giriş yapmayı dene veya profilini onarmayı dene.</p>
+        <div className="space-y-3">
+          <button 
+            onClick={handleRepair}
+            disabled={loading}
+            className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
+          >
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            Profili Onar
+          </button>
+          <button 
+            onClick={() => logout()}
+            className="w-full py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-all"
+          >
+            Çıkış Yap
+          </button>
+        </div>
       </div>
     );
   }

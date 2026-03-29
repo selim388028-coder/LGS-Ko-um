@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { useAppContext } from '../context/AppContext';
 import { Subject, Mistake } from '../types';
 import { BookX, Plus, CheckCircle2, Circle, Calendar, Tag, Image as ImageIcon, X, Bot } from 'lucide-react';
@@ -16,6 +17,10 @@ const SUBJECTS: Subject[] = [
 
 export default function Mistakes() {
   const { mistakes, addMistake, toggleMistakeResolved, profile } = useAppContext();
+  const { user } = useAuth();
+  const isAdmin = profile?.role === 'admin' || 
+                  profile?.email?.toLowerCase() === 'selim388028@gmail.com' ||
+                  user?.email?.toLowerCase() === 'selim388028@gmail.com';
   const navigate = useNavigate();
   const [isAdding, setIsAdding] = useState(false);
   
@@ -83,12 +88,11 @@ export default function Mistakes() {
     }
   };
 
-  if (!profile?.isPremium) {
+  if (!profile?.isPremium && !isAdmin) {
     return <PremiumPaywall featureName="Yanlış Defteri" />;
   }
 
   const unresolvedMistakes = mistakes.filter(m => !m.isResolved);
-  const resolvedMistakes = mistakes.filter(m => m.isResolved);
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">

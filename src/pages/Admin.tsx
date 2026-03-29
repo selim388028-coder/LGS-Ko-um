@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { collection, query, where, onSnapshot, doc, updateDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, updateDoc, getDoc, serverTimestamp, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { CheckCircle2, XCircle, Clock, User, Mail, Calendar, CreditCard, ShieldCheck, MessageSquare, Send } from 'lucide-react';
@@ -130,6 +130,16 @@ export default function Admin() {
       await updateDoc(doc(db, 'payment_notifications', notification.id), {
         status: 'approved',
         updatedAt: serverTimestamp()
+      });
+
+      // 4. Create notification for user
+      await addDoc(collection(db, 'notifications'), {
+        userId: notification.userId,
+        title: 'Premium Üyeliğin Onaylandı!',
+        message: 'Ödemen onaylandı ve Premium özelliklerin aktif edildi. İyi çalışmalar!',
+        type: 'premium_approved',
+        isRead: false,
+        createdAt: serverTimestamp()
       });
 
       alert('Ödeme onaylandı ve üyelik süresi uzatıldı.');

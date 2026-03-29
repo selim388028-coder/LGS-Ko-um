@@ -4,6 +4,7 @@ import { CheckCircle2, Circle, Plus, Calendar as CalendarIcon, Clock, BookOpen, 
 import { StudyTask, Subject } from '../types';
 import { GoogleGenAI } from '@google/genai';
 import PremiumPaywall from '../components/PremiumPaywall';
+import { cn } from '../lib/utils';
 
 const SUBJECTS: Subject[] = [
   "Türkçe",
@@ -47,7 +48,14 @@ export default function StudyPlan() {
     }
   };
 
+  const isAdmin = profile?.role === 'admin' || 
+                  profile?.email?.toLowerCase() === 'selim388028@gmail.com';
+
   const handleGenerateAIPlan = async () => {
+    if (!profile?.isPremium && !isAdmin) {
+      alert("Bu özellik sadece Premium üyeler içindir.");
+      return;
+    }
     if (!profile) return;
     setIsGeneratingAI(true);
     try {
@@ -102,10 +110,6 @@ DİKKAT: Sadece ve sadece aşağıdaki JSON formatında bir dizi (array) döndü
     return d.toISOString().split('T')[0];
   });
 
-  if (!profile?.isPremium) {
-    return <PremiumPaywall featureName="Akıllı Çalışma Planı" />;
-  }
-
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -117,10 +121,16 @@ DİKKAT: Sadece ve sadece aşağıdaki JSON formatında bir dizi (array) döndü
           <button 
             onClick={handleGenerateAIPlan}
             disabled={isGeneratingAI}
-            className="flex items-center gap-2 bg-amber-100 text-amber-700 px-4 py-2 rounded-lg font-bold hover:bg-amber-200 transition-colors disabled:opacity-50"
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-colors disabled:opacity-50",
+              (!profile?.isPremium && !isAdmin) 
+                ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
+                : "bg-amber-100 text-amber-700 hover:bg-amber-200"
+            )}
           >
             {isGeneratingAI ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
             AI ile Plan Oluştur
+            {(!profile?.isPremium && !isAdmin) && <Sparkles className="w-3 h-3 ml-1" />}
           </button>
           <button 
             onClick={() => setIsAdding(true)}

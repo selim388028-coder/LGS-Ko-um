@@ -179,11 +179,11 @@ export default function Dashboard() {
       {/* Quick Access Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { name: 'AI Koçum', icon: Bot, href: '/ai-coach', color: 'bg-indigo-50 text-indigo-600', hover: 'hover:bg-indigo-100' },
-          { name: 'Canlı Çözüm', icon: Sparkles, href: '/ai-solver', color: 'bg-amber-50 text-amber-600', hover: 'hover:bg-amber-100' },
-          { name: 'Yazılı Hazırlık', icon: FileText, href: '/school-exams', color: 'bg-emerald-50 text-emerald-600', hover: 'hover:bg-emerald-100' },
-          { name: 'Mini Özetler', icon: BookOpen, href: '/summaries', color: 'bg-blue-50 text-blue-600', hover: 'hover:bg-blue-100' },
-        ].map((item) => (
+          { name: 'AI Koçum', icon: Bot, href: '/ai-coach', color: 'bg-indigo-50 text-indigo-600', hover: 'hover:bg-indigo-100', premiumOnly: true },
+          { name: 'Canlı Çözüm', icon: Sparkles, href: '/ai-solver', color: 'bg-amber-50 text-amber-600', hover: 'hover:bg-amber-100', premiumOnly: true },
+          { name: 'Yazılı Hazırlık', icon: FileText, href: '/school-exams', color: 'bg-emerald-50 text-emerald-600', hover: 'hover:bg-emerald-100', premiumOnly: true },
+          { name: 'Mini Özetler', icon: BookOpen, href: '/summaries', color: 'bg-blue-50 text-blue-600', hover: 'hover:bg-blue-100', premiumOnly: true },
+        ].filter(item => !item.premiumOnly || profile?.isPremium || isAdmin).map((item) => (
           <button
             key={item.name}
             onClick={() => navigate(item.href)}
@@ -258,33 +258,35 @@ export default function Dashboard() {
         </motion.div>
 
         {/* Mistakes Alert */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          onClick={() => navigate('/mistakes')}
-          className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 cursor-pointer hover:border-rose-300 transition-all hover:shadow-md group"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-slate-800 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-rose-500" />
-              Çözülmemiş Yanlışlar
-            </h3>
-            <span className="text-2xl font-bold text-rose-600">{unresolvedMistakes}</span>
-          </div>
-          <p className="text-sm text-slate-600 mb-4">
-            Yanlış yaptığın soruları tekrar çözmek, netlerini artırmanın en kesin yoludur.
-          </p>
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate('/mistakes');
-            }}
-            className="w-full py-2 bg-rose-50 text-rose-600 rounded-lg text-sm font-medium hover:bg-rose-100 transition-colors"
+        {(profile?.isPremium || isAdmin) && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            onClick={() => navigate('/mistakes')}
+            className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 cursor-pointer hover:border-rose-300 transition-all hover:shadow-md group"
           >
-            Yanlış Defterine Git
-          </button>
-        </motion.div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-slate-800 flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-rose-500" />
+                Çözülmemiş Yanlışlar
+              </h3>
+              <span className="text-2xl font-bold text-rose-600">{unresolvedMistakes}</span>
+            </div>
+            <p className="text-sm text-slate-600 mb-4">
+              Yanlış yaptığın soruları tekrar çözmek, netlerini artırmanın en kesin yoludur.
+            </p>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate('/mistakes');
+              }}
+              className="w-full py-2 bg-rose-50 text-rose-600 rounded-lg text-sm font-medium hover:bg-rose-100 transition-colors"
+            >
+              Yanlış Defterine Git
+            </button>
+          </motion.div>
+        )}
       </div>
 
       {/* Today's Tasks List */}

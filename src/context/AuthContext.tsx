@@ -31,6 +31,7 @@ interface AuthContextType {
   loading: boolean;
   isAuthReady: boolean;
   logout: () => Promise<void>;
+  repairProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -121,12 +122,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, [user]);
 
+  const repairProfile = async () => {
+    if (!user) return;
+    setLoading(true);
+    console.log(`[AuthContext] Profil tamiri başlatıldı...`);
+    try {
+      const docRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists()) {
+        const newProfile: UserProfile = {
+          uid: user.uid,
+          email: user.email || '',
+          displayName: user.displayName || user.email?.split('@')[0] || 'Kullanıcı',
+          targetHighSchool: 'Belirlenmedi',
+          dailyGoal: 50,
+          isPremium: false,
+          isEmailVerified: true,
+          role: user.email?.toLowerCase() === 'selim388028@gmail.com' ? 'admin' : 'user',
+          createdAt: new Date().toISOString()
+        };
+        await setDoc(docRef, newProfile);
+        console.log(`[AuthContext] Profil başarıyla oluşturuldu.`);
+      } else {
+        console.log(`[AuthContext] Profil zaten mevcut.`);
+        setProfile(docSnap.data() as UserProfile);
+      }
+    } catch (err) {
+      console.error(`[AuthContext] Profil tamir hatası: ${err}`);
+    } finally {
+      setLoading(false);
+      setIsAuthReady(true);
+    }
+  };
+
   const logout = async () => {
     await signOut(auth);
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, isAuthReady, logout }}>
+    <AuthContext.Provider value={{ user, profile, loading, isAuthReady, logout, repairProfile }}>
       {children}
     </AuthContext.Provider>
   );
